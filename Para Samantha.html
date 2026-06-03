@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>para Samantha</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Dancing+Script:wght@400;500&family=Raleway:wght@200;300;400&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     VARIABLES & RESET
+  ============================================================ */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --cream:    #f5efe6;
+    --blush:    #e8c4b0;
+    --rose:     #c47a6a;
+    --deep:     #2a1f1a;
+    --gold:     #c9a96e;
+    --white:    #ffffff;
+    --overlay:  rgba(20, 10, 8, 0.55);
+  }
+
+  html, body {
+    width: 100%; height: 100%;
+    overflow: hidden;
+    font-family: 'Raleway', sans-serif;
+    cursor: default;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* ============================================================
+     SHARED BACKGROUND — change 'tu-imagen.jpg' to your photo path
+  ============================================================ */
+  .bg-layer {
+    position: fixed; inset: 0; z-index: 0;
+    background-image: url('tu-imagen.jpg'); /* ← PON AQUÍ LA RUTA DE TU IMAGEN */
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    /* fallback gradient if no image is set */
+    background-color: #1a0f0b;
+  }
+  .bg-overlay {
+    position: fixed; inset: 0; z-index: 1;
+    background: var(--overlay);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+  }
+
+  /* ============================================================
+     PHASE 1 — COUNTDOWN SCREEN
+  ============================================================ */
+  #phase-wait {
+    position: fixed; inset: 0; z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2.4rem;
+    padding: 2rem;
+    transition: opacity 1.2s ease;
+  }
+  #phase-wait.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .label-for {
+    font-family: 'Dancing Script', cursive;
+    font-size: clamp(2rem, 7vw, 3.2rem);
+    color: var(--cream);
+    letter-spacing: 0.04em;
+    text-shadow: 0 2px 24px rgba(0,0,0,0.5);
+    animation: fadeSlideUp 1.4s ease both;
+  }
+
+  /* Countdown clock */
+  .clock-wrapper {
+    display: flex;
+    gap: clamp(0.8rem, 3vw, 2rem);
+    align-items: flex-start;
+    animation: fadeSlideUp 1.6s 0.2s ease both;
+  }
+  .clock-unit {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+  }
+  .clock-number {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: clamp(3rem, 14vw, 6.5rem);
+    color: var(--cream);
+    line-height: 1;
+    text-shadow: 0 0 40px rgba(201,169,110,0.35), 0 2px 16px rgba(0,0,0,0.6);
+    min-width: 2ch;
+    text-align: center;
+    letter-spacing: -0.01em;
+  }
+  .clock-label {
+    font-family: 'Raleway', sans-serif;
+    font-weight: 200;
+    font-size: clamp(0.55rem, 2.2vw, 0.72rem);
+    color: var(--blush);
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+  }
+  .clock-sep {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2rem, 10vw, 4.5rem);
+    color: var(--gold);
+    opacity: 0.6;
+    line-height: 1;
+    padding-top: 0.05em;
+    animation: blink 1s step-end infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:.6} 50%{opacity:.15} }
+
+  .tagline {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 300;
+    font-size: clamp(0.85rem, 3.5vw, 1.15rem);
+    color: var(--blush);
+    text-align: center;
+    max-width: 340px;
+    line-height: 1.65;
+    letter-spacing: 0.02em;
+    text-shadow: 0 2px 12px rgba(0,0,0,0.5);
+    animation: fadeSlideUp 1.8s 0.4s ease both;
+  }
+
+  /* Decorative thin line */
+  .deco-line {
+    width: 1px; height: 40px;
+    background: linear-gradient(to bottom, transparent, var(--gold), transparent);
+    opacity: 0.5;
+    animation: fadeSlideUp 2s 0.6s ease both;
+  }
+
+  /* ============================================================
+     PHASE 2 — MESSAGE SCREEN
+  ============================================================ */
+  #phase-msg {
+    position: fixed; inset: 0; z-index: 20;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 2.2rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 1.2s ease;
+  }
+  #phase-msg.active {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  /* Single message container */
+  .msg-stage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    max-width: 480px;
+    width: 100%;
+    position: relative;
+  }
+
+  .msg-line {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: clamp(1.1rem, 4.5vw, 1.55rem);
+    color: var(--cream);
+    text-align: center;
+    line-height: 1.75;
+    letter-spacing: 0.015em;
+    text-shadow: 0 2px 20px rgba(0,0,0,0.7);
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity 0.9s ease, transform 0.9s ease;
+    will-change: opacity, transform;
+  }
+  .msg-line.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .msg-line.exit {
+    opacity: 0;
+    transform: translateY(-22px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  /* Tap hint */
+  .tap-hint {
+    position: fixed;
+    bottom: 2rem; left: 0; right: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    opacity: 0;
+    animation: fadeIn 2s 2s ease forwards;
+    pointer-events: none;
+  }
+  .tap-hint span {
+    font-family: 'Raleway', sans-serif;
+    font-weight: 200;
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--blush);
+    opacity: 0.7;
+  }
+  .tap-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--gold);
+    opacity: 0.5;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100%{transform:scale(1);opacity:.5} 50%{transform:scale(1.5);opacity:.9} }
+
+  /* End screen */
+  .end-screen {
+    position: fixed; inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 30;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 1.5s ease;
+    padding: 2rem;
+  }
+  .end-screen.active { opacity: 1; }
+  .end-heart {
+    font-family: 'Dancing Script', cursive;
+    font-size: clamp(1.5rem, 6vw, 2.5rem);
+    color: var(--cream);
+    text-align: center;
+    line-height: 1.8;
+    text-shadow: 0 0 30px rgba(196,122,106,0.4), 0 2px 20px rgba(0,0,0,0.6);
+    animation: heartbeat 2s ease-in-out infinite;
+  }
+  @keyframes heartbeat { 0%,100%{transform:scale(1)} 50%{transform:scale(1.04)} }
+
+  /* ============================================================
+     SHARED ANIMATIONS
+  ============================================================ */
+  @keyframes fadeSlideUp {
+    from { opacity:0; transform:translateY(20px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity:0; } to { opacity:1; }
+  }
+
+  /* ============================================================
+     OPEN BUTTON (shown when countdown hits zero)
+  ============================================================ */
+  .open-btn {
+    display: none;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: clamp(1rem, 4vw, 1.3rem);
+    color: var(--cream);
+    border: 1px solid rgba(201,169,110,0.45);
+    background: rgba(255,255,255,0.07);
+    padding: 0.9rem 2.4rem;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    border-radius: 2px;
+    backdrop-filter: blur(4px);
+    transition: all 0.4s ease;
+    animation: fadeSlideUp 1s ease both;
+  }
+  .open-btn:hover { background: rgba(201,169,110,0.15); border-color: var(--gold); }
+  .open-btn.show { display: block; }
+
+  /* Progress dots */
+  .progress-dots {
+    position: fixed;
+    right: 1.2rem;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    z-index: 25;
+    opacity: 0;
+    transition: opacity 0.8s ease;
+  }
+  .progress-dots.active { opacity: 1; }
+  .dot {
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--blush);
+    opacity: 0.3;
+    transition: opacity 0.4s ease, transform 0.4s ease;
+  }
+  .dot.done { opacity: 0.85; transform: scale(1.3); background: var(--gold); }
+
+  /* Taylor Swift italic style */
+  .msg-swift {
+    font-style: italic;
+    color: var(--blush);
+    font-size: clamp(1rem, 4vw, 1.35rem);
+  }
+
+  /* Meme / inside-joke style */
+  .msg-meme {
+    font-family: 'Raleway', sans-serif;
+    font-weight: 300;
+    font-size: clamp(1rem, 4.2vw, 1.4rem);
+    letter-spacing: 0.01em;
+  }
+</style>
+</head>
+<body>
+
+<!-- Shared background layers -->
+<div class="bg-layer"></div>
+<div class="bg-overlay"></div>
+
+<!-- ====================================================
+     PHASE 1 — COUNTDOWN
+==================================================== -->
+<div id="phase-wait">
+  <p class="label-for">para Samantha</p>
+
+  <div class="clock-wrapper">
+    <div class="clock-unit">
+      <span class="clock-number" id="cd-days">00</span>
+      <span class="clock-label">días</span>
+    </div>
+    <span class="clock-sep">:</span>
+    <div class="clock-unit">
+      <span class="clock-number" id="cd-hours">00</span>
+      <span class="clock-label">horas</span>
+    </div>
+    <span class="clock-sep">:</span>
+    <div class="clock-unit">
+      <span class="clock-number" id="cd-mins">00</span>
+      <span class="clock-label">minutos</span>
+    </div>
+    <span class="clock-sep">:</span>
+    <div class="clock-unit">
+      <span class="clock-number" id="cd-secs">00</span>
+      <span class="clock-label">segundos</span>
+    </div>
+  </div>
+
+  <div class="deco-line"></div>
+
+  <p class="tagline">Este mensaje fue preparado con mucho cariño<br>solo podrás abrirlo en tu día especial.</p>
+
+  <!-- Button that appears when countdown ends -->
+  <button class="open-btn" id="open-btn" onclick="launchPhase2()">Abrir ✦</button>
+</div>
+
+<!-- ====================================================
+     PHASE 2 — TAP MESSAGES
+==================================================== -->
+<div id="phase-msg">
+  <div class="msg-stage">
+    <p class="msg-line" id="msg-text"></p>
+  </div>
+
+  <!-- Subtle tap hint -->
+  <div class="tap-hint" id="tap-hint">
+    <div class="tap-dot"></div>
+    <span>toca para continuar</span>
+  </div>
+</div>
+
+<!-- Progress dots -->
+<div class="progress-dots" id="progress-dots"></div>
+
+<!-- End screen -->
+<div class="end-screen" id="end-screen">
+  <p class="end-heart">♡</p>
+</div>
+
+<script>
+  /* ============================================================
+     DEBUG MODE
+     Cambiar a `true` para saltarse el contador y ver la Fase 2
+     directamente. Recuerda ponerlo en `false` antes de enviárselo.
+  ============================================================ */
+  const DEBUG_MODE = false;
+
+  /* ============================================================
+     TARGET DATE — 25 de agosto de este año a las 7:00 AM
+  ============================================================ */
+  const TARGET = new Date(new Date().getFullYear(), 7, 25, 7, 0, 0); // Mes 7 = agosto
+
+  /* ============================================================
+     MESSAGES — Cada tap avanza un elemento de este arreglo
+  ============================================================ */
+  const messages = [
+    // ── Textos del corazón ──────────────────────────────────────
+    { text: "Este año fue diferente al anterior, cuando todavía podíamos compartir los momentos tranquilos de la semana.", style: "" },
+    { text: "El tiempo se volvió esquivo y no pude estar presente como hubiera querido.", style: "" },
+    { text: "Aun así, quiero que sepas que nunca has dejado de estar en mis pensamientos.", style: "" },
+    { text: "Eres una persona verdaderamente maravillosa, y tener la fortuna de conocerte ha sido uno de los regalos más bonitos que la vida me ha dado.", style: "" },
+    { text: "Eres la clase de amistad que se aprecia profundamente, la que te hace sentir que el mundo es un lugar un poco mejor.", style: "" },
+    { text: "Te quiero mucho y deseo de corazón que todo lo que te propongas se haga realidad — porque te lo mereces más que nadie.", style: "" },
+    { text: "Me alegra enormemente haber encontrado en tan poco tiempo una amistad tan bonita. Lo dije el año pasado, y con más certeza que nunca, lo repito hoy.", style: "" },
+
+    // ── Mensajes internos / memes ────────────────────────────────
+    { text: "-Puta, Samantha agarra la bolsa", style: "msg-meme" },
+    { text: "-Placenta uhm", style: "msg-meme" },
+    { text: "-Haz tenido una infección…", style: "msg-meme" },
+    { text: "-pio pio pio", style: "msg-meme" },
+    { text: "-La papa", style: "msg-meme" },
+    { text: "-Pepino wow…", style: "msg-meme" },
+
+    // ── Taylor Swift ─────────────────────────────────────────────
+    { text: "— I'm queen of sand castles he destroys / Cause it's fit for a hurt person / To hurt more people.", style: "msg-swift" },
+    { text: "— Who's gonna hold you? Me. / Who's gonna know you, if not me?", style: "msg-swift" },
+    { text: "— I'm hiding in plain sight and iighh... I is it enough?", style: "msg-swift" },
+    { text: "— I hate it here so I will go to secret gardens in my mind / Before the world puts out my fire.", style: "msg-swift" },
+
+    // ── Cierre ───────────────────────────────────────────────────
+    { text: "Tal vez no llegue a ser tu persona favorita, pero quiero que sepas que siempre, en cualquier momento, cuando sientas que todo se cae o simplemente necesites a alguien... ahí estaré para ti.", style: "" },
+  ];
+
+  /* ============================================================
+     STATE
+  ============================================================ */
+  let currentIndex = -1;
+  let isAnimating   = false;
+  let phase2Active  = false;
+
+  /* ============================================================
+     COUNTDOWN LOGIC
+  ============================================================ */
+  function pad(n) { return String(n).padStart(2, '0'); }
+
+  function updateClock() {
+    const now  = Date.now();
+    const diff = TARGET.getTime() - now;
+
+    if (diff <= 0 || DEBUG_MODE) {
+      clearInterval(clockInterval);
+      document.getElementById('open-btn').classList.add('show');
+      // Hide the timer numbers if time reached
+      if (diff <= 0) {
+        ['cd-days','cd-hours','cd-mins','cd-secs'].forEach(id => {
+          document.getElementById(id).textContent = '00';
+        });
+      }
+      return;
+    }
+
+    const totalSecs = Math.floor(diff / 1000);
+    const days  = Math.floor(totalSecs / 86400);
+    const hours = Math.floor((totalSecs % 86400) / 3600);
+    const mins  = Math.floor((totalSecs % 3600) / 60);
+    const secs  = totalSecs % 60;
+
+    document.getElementById('cd-days').textContent  = pad(days);
+    document.getElementById('cd-hours').textContent = pad(hours);
+    document.getElementById('cd-mins').textContent  = pad(mins);
+    document.getElementById('cd-secs').textContent  = pad(secs);
+  }
+
+  const clockInterval = setInterval(updateClock, 1000);
+  updateClock();
+
+  // Auto-launch if DEBUG_MODE
+  if (DEBUG_MODE) {
+    setTimeout(() => launchPhase2(), 800);
+  }
+
+  /* ============================================================
+     PHASE 2 LAUNCH
+  ============================================================ */
+  function launchPhase2() {
+    // Fade out Phase 1
+    const waitEl = document.getElementById('phase-wait');
+    waitEl.classList.add('hidden');
+
+    setTimeout(() => {
+      waitEl.style.display = 'none';
+
+      // Build progress dots
+      const dotsEl = document.getElementById('progress-dots');
+      messages.forEach((_, i) => {
+        const d = document.createElement('div');
+        d.className = 'dot';
+        d.id = 'dot-' + i;
+        dotsEl.appendChild(d);
+      });
+      dotsEl.classList.add('active');
+
+      // Activate phase 2
+      const msgEl = document.getElementById('phase-msg');
+      msgEl.classList.add('active');
+      phase2Active = true;
+
+      // Show first message automatically
+      showNext();
+    }, 1200);
+  }
+
+  /* ============================================================
+     MESSAGE DISPLAY
+  ============================================================ */
+  function showNext() {
+    if (isAnimating) return;
+    if (currentIndex >= messages.length - 1) {
+      showEnd();
+      return;
+    }
+
+    isAnimating = true;
+    const textEl = document.getElementById('msg-text');
+    const hintEl = document.getElementById('tap-hint');
+
+    // If there's a current message, exit it first
+    if (currentIndex >= 0) {
+      textEl.classList.remove('visible');
+      textEl.classList.add('exit');
+
+      setTimeout(() => {
+        currentIndex++;
+        renderMessage(textEl, hintEl);
+      }, 600);
+    } else {
+      currentIndex++;
+      renderMessage(textEl, hintEl);
+    }
+  }
+
+  function renderMessage(textEl, hintEl) {
+    const msg = messages[currentIndex];
+
+    // Reset classes
+    textEl.className = 'msg-line';
+    if (msg.style) textEl.classList.add(msg.style);
+
+    // Set content (preserve line breaks written as " / ")
+    textEl.innerHTML = msg.text.replace(/ \/ /g, '<br>');
+
+    // Trigger entrance animation
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        textEl.classList.add('visible');
+      });
+    });
+
+    // Update progress dot
+    document.getElementById('dot-' + currentIndex)?.classList.add('done');
+
+    // Show/hide tap hint
+    if (currentIndex === messages.length - 1) {
+      hintEl.style.opacity = '0';
+    } else {
+      hintEl.style.opacity = '1';
+    }
+
+    setTimeout(() => { isAnimating = false; }, 950);
+  }
+
+  function showEnd() {
+    const msgEl  = document.getElementById('phase-msg');
+    const dotsEl = document.getElementById('progress-dots');
+    const endEl  = document.getElementById('end-screen');
+
+    msgEl.style.opacity  = '0';
+    dotsEl.style.opacity = '0';
+
+    setTimeout(() => {
+      msgEl.style.display  = 'none';
+      dotsEl.style.display = 'none';
+      endEl.classList.add('active');
+    }, 1200);
+  }
+
+  /* ============================================================
+     TAP / CLICK HANDLER
+  ============================================================ */
+  document.addEventListener('click', () => {
+    if (phase2Active) showNext();
+  });
+
+  document.addEventListener('touchend', (e) => {
+    if (phase2Active) {
+      e.preventDefault();
+      showNext();
+    }
+  }, { passive: false });
+</script>
+</body>
+</html>
