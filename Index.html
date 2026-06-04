@@ -43,7 +43,7 @@
     background-color: #1a0f0b;
     transition: background-image 0.8s ease;
   }
-  .bg-layer.swift-bg {
+  .bg-layer.message-bg {
     background-image: url('fondo.png');
   }
   .bg-layer.end-bg {
@@ -54,6 +54,15 @@
     background: var(--overlay);
     backdrop-filter: blur(2px);
     -webkit-backdrop-filter: blur(2px);
+  }
+  .bg-overlay.glow {
+    animation: glowPulse 2.4s ease-out both;
+  }
+
+  @keyframes glowPulse {
+    0% { background: rgba(20,10,8,0.55); }
+    50% { background: rgba(255,255,255,0.14); }
+    100% { background: rgba(20,10,8,0.55); }
   }
 
   /* ============================================================
@@ -191,6 +200,7 @@
     transform: translateY(18px);
     transition: opacity 0.9s ease, transform 0.9s ease;
     will-change: opacity, transform;
+    white-space: pre-wrap;
   }
   .msg-line.visible {
     opacity: 1;
@@ -244,7 +254,7 @@
     transition: opacity 1.5s ease;
     padding: 2rem;
   }
-  .end-screen.active { opacity: 1; }
+  .end-screen.active { opacity: 1; pointer-events: all; }
   .end-heart {
     font-family: 'Dancing Script', cursive;
     font-size: clamp(1.5rem, 6vw, 2.5rem);
@@ -364,6 +374,110 @@
     z-index: 23;
   }
   .meme-tap-hint.show { opacity: 0.6; }
+
+  /* ============================================================
+     PHASE 3 — FINAL MENU
+  ============================================================ */
+  .final-menu {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.85rem;
+    max-width: 90vw;
+    padding: 1rem;
+  }
+  .final-letter {
+    min-width: 3.3rem;
+    min-height: 3.3rem;
+    padding: 0.85rem 1rem;
+    border: 1px solid rgba(255,255,255,0.22);
+    border-radius: 18px;
+    background: rgba(255,255,255,0.08);
+    color: var(--cream);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1.3rem, 5vw, 2rem);
+    font-weight: 400;
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.25s ease, background 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+    backdrop-filter: blur(10px);
+  }
+  .final-letter:hover,
+  .final-letter:focus {
+    outline: none;
+    transform: translateY(-4px);
+    background: rgba(255,255,255,0.16);
+    border-color: rgba(255,255,255,0.4);
+    box-shadow: 0 18px 45px rgba(0,0,0,0.14);
+  }
+  .final-menu-label {
+    width: 100%;
+    text-align: center;
+    font-size: clamp(0.95rem, 3vw, 1.1rem);
+    color: var(--blush);
+    letter-spacing: 0.25em;
+    margin-bottom: 0.8rem;
+  }
+  .poem-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 35;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(14, 10, 8, 0.72);
+    backdrop-filter: blur(4px);
+  }
+  .poem-modal-overlay.active {
+    display: flex;
+  }
+  .poem-modal {
+    width: min(560px, 92vw);
+    background: rgba(19, 13, 10, 0.96);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 26px;
+    padding: 1.6rem 1.4rem;
+    box-shadow: 0 30px 70px rgba(0,0,0,0.35);
+    color: var(--cream);
+    animation: fadeSlideUp 0.5s ease both;
+    position: relative;
+  }
+  .poem-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 2rem;
+    height: 2rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+    color: var(--cream);
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.2s ease;
+  }
+  .poem-close:hover {
+    transform: scale(1.05);
+    background: rgba(255,255,255,0.18);
+  }
+  .poem-letter {
+    margin-bottom: 0.8rem;
+    font-family: 'Dancing Script', cursive;
+    font-size: clamp(2rem, 7vw, 3rem);
+    color: var(--gold);
+    text-align: center;
+  }
+  .poem-text {
+    font-family: 'Cormorant Garamond', serif;
+    line-height: 1.8;
+    letter-spacing: 0.01em;
+    font-size: clamp(1rem, 3.8vw, 1.2rem);
+    text-align: center;
+    color: var(--cream);
+  }
 </style>
 </head>
 <body>
@@ -430,9 +544,26 @@
 <div id="meme-layer" style="position:fixed;inset:0;z-index:22;pointer-events:none;"></div>
 <div class="meme-tap-hint" id="meme-tap-hint">toca para continuar</div>
 
-<!-- End screen -->
+<!-- End screen / Final menu -->
 <div class="end-screen" id="end-screen">
-  <p class="end-heart">♡</p>
+  <div class="final-menu" id="final-menu" aria-label="Menú final de acróstico">
+    <div class="final-menu-label">Toca una letra para leer un poema</div>
+    <button class="final-letter" type="button" data-key="S" onclick="openPoem('S')">S</button>
+    <button class="final-letter" type="button" data-key="A1" onclick="openPoem('A1')">A</button>
+    <button class="final-letter" type="button" data-key="M" onclick="openPoem('M')">M</button>
+    <button class="final-letter" type="button" data-key="A2" onclick="openPoem('A2')">A</button>
+    <button class="final-letter" type="button" data-key="N" onclick="openPoem('N')">N</button>
+    <button class="final-letter" type="button" data-key="T" onclick="openPoem('T')">T</button>
+    <button class="final-letter" type="button" data-key="H" onclick="openPoem('H')">H</button>
+    <button class="final-letter" type="button" data-key="A3" onclick="openPoem('A3')">A</button>
+  </div>
+  <div class="poem-modal-overlay" id="poem-overlay" role="dialog" aria-modal="true" aria-labelledby="poem-letter" tabindex="-1">
+    <div class="poem-modal">
+      <button class="poem-close" id="poem-close" type="button" onclick="closePoem()">×</button>
+      <p class="poem-letter" id="poem-letter"></p>
+      <p class="poem-text" id="poem-text"></p>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -452,39 +583,34 @@
      MESSAGES — Cada tap avanza un elemento de este arreglo
   ============================================================ */
   const messages = [
-    // ── Textos del corazón ──────────────────────────────────────
-    { text: "Hay personas que llegan sin hacer ruido y aun así lo cambian todo. Tú llegaste así.", style: "" },
-    { text: "Este año fue distinto. El tiempo se volvió esquivo, las semanas pasaron rápido, y yo no estuve tan presente como hubiera querido.", style: "" },
-    { text: "Y eso me pesa. Porque hay personas que merecen más que el silencio de los días ocupados.", style: "" },
-    { text: "Pero quiero que sepas algo: aunque no siempre lo diga, aunque no siempre aparezca — nunca has dejado de estar en mis pensamientos.", style: "" },
-    { text: "Eres de esas personas que el mundo necesita más. De las que escuchan de verdad, de las que se quedan cuando todo se complica.", style: "" },
-    { text: "Los girasoles siempre buscan la luz, no importa cuántas nubes haya. Tú eres exactamente así.", style: "" },
-    { text: "Conocerte ha sido uno de esos regalos que la vida da sin avisar — de los que uno no sabe que necesitaba hasta que ya los tiene.", style: "" },
-    { text: "Eres la clase de amistad que no se encuentra fácil. La que te hace sentir que el mundo es un lugar un poco más habitable.", style: "" },
-    { text: "Te quiero mucho. Y deseo con todo que cada cosa que sueñes se haga real — porque si hay alguien que se lo merece, eres tú.", style: "" },
-    { text: "Lo dije el año pasado y hoy lo repito con más certeza que nunca: me alegra enormemente haber encontrado en tan poco tiempo una amistad tan bonita.", style: "" },
-
-    // ── Mensajes internos / memes ────────────────────────────────
-    { text: "-Puta, Samantha agarra la bolsa", style: "msg-meme" },
-    { text: "-Placenta uhm", style: "msg-meme" },
-    { text: "-Haz tenido una infección…", style: "msg-meme" },
-    { text: "-pio pio pio", style: "msg-meme" },
-    { text: "-La papa", style: "msg-meme" },
-    { text: "-Pepino wow…", style: "msg-meme" },
-    { text: "-atún", style: "msg-meme" },
-
-    // ── Taylor Swift ─────────────────────────────────────────────
-    { text: "— I'm queen of sand castles he destroys / Cause it's fit for a hurt person / To hurt more people.", style: "msg-swift" },
-    { text: "— Who's gonna hold you? Me. / Who's gonna know you, if not me?", style: "msg-swift" },
-    { text: "— I'm hiding in plain sight and iighh... I is it enough?", style: "msg-swift" },
-    { text: "— I hate it here so I will go to secret gardens in my mind / Before the world puts out my fire.", style: "msg-swift" },
+    { text: "Hay personas que llegan sin hacer ruido y, de repente, lo cambian todo. Tú llegaste así.", style: "" },
+    { text: "Este año se fue rápido, y hubo días en los que no estuve tan presente como quería. Eso lo siento.", style: "" },
+    { text: "Aun así, cada detalle tuyo quedó en mi memoria: tu risa, tu forma de escuchar y esa honestidad que te define.", style: "" },
+    { text: "Cuando pienso en ti, pienso en girasoles: insistiendo en la luz incluso cuando las nubes están ahí.", style: "" },
+    { text: "Gracias por ser esa persona capaz de hacer el mundo un poco más liviano solo con estar.", style: "" },
+    { text: "Me gusta cómo te preocupas, cómo defiendes lo que te importa y cómo haces que todo sea más fácil de llevar.", style: "" },
+    { text: "No siempre digo lo suficiente, pero quiero que sepas que en mis mejores recuerdos estás tú.", style: "" },
+    { text: "Me alegra haber encontrado una amistad tan cálida, honesta y especial como la nuestra.", style: "" },
+    { text: "Te quiero mucho. Y deseo con todo que cada sueño tuyo crezca como un girasol hacia algo mejor.", style: "" },
+    { text: "Hoy solo quiero agradecerte por ser tú, por esos pequeños grandes momentos y por dejarme estar cerca.", style: "" },
 
     // ── Cierre ───────────────────────────────────────────────────
-    { text: "Tal vez no llegue a ser tu persona favorita. Pero sí quiero ser de las que no fallan.", style: "" },
-    { text: "Quiero que sepas que en cualquier momento, cuando sientas que todo se cae, cuando necesites a alguien que simplemente esté —", style: "" },
-    { text: "aquí voy a estar. Sin preguntas. Sin condiciones. Como los girasoles, que no dejan de voltear hacia donde está la luz.", style: "" },
-    { text: "Feliz cumpleaños, Samantha. 🌻", style: "" },
+    { text: "Tal vez no sea tu persona favorita, pero sí quiero ser de las que no fallan.", style: "" },
+    { text: "Cuando sientas que todo se cae y necesites a alguien que simplemente esté, aquí voy a estar.", style: "" },
+    { text: "Sin preguntas. Sin condiciones. Siempre estaré del lado donde brilla la luz.", style: "" },
+    { text: "Feliz cumpleaños, Samantha. Gracias por ser como eres.", style: "" },
   ];
+
+  const acrosticPoems = {
+    S: "Si el mundo se vuelve ruido y tempestad, busca en mis palabras un refugio de paz; un espacio calmo donde reina la honestidad.",
+    M: "Mirar el camino recorrido y sonreír, sabiendo que coincidir en este vasto universo fue el detalle más bonito que el destino pudo escribir.",
+    A1: "A través de los días y la distancia que asoma, permanece intacto el cariño que se asienta, como un faro firme que el tiempo no desmonta.",
+    A2: "Agradezco el instante en que tu luz cruzó mi andar, porque las almas nobles y de mirada sincera son las que de verdad vale la pena conservar.",
+    N: "No importa cuán esquivo se ponga a veces el reloj, hay certezas que se guardan seguras en el alma, ajenas al silencio y al diario ir y venir.",
+    T: "Tu presencia es esa calma que alegra los días compartidos, un recordatorio sutil de que en la sencillez de una buena amistad se encuentra el verdadero sentido.",
+    H: "Haces que el entorno se vuelva un poco más brillante, con esa magia única que llevas dentro y que dejas en cada detalle importante.",
+    A3: "Aquí estaré, firme y sin condiciones, para cuando el viento sople fuerte o solo busques calma en medio de las estaciones."
+  };
 
   /* ============================================================
      STATE
@@ -546,9 +672,9 @@
     setTimeout(() => {
       waitEl.style.display = 'none';
 
-      // Cambiar al fondo para mensajes
+      // Cambiar al fondo de mensajes después del contador
       const bgEl = document.querySelector('.bg-layer');
-      bgEl.classList.add('swift-bg');
+      bgEl.classList.add('message-bg');
 
       // Build progress dots
       const dotsEl = document.getElementById('progress-dots');
@@ -621,16 +747,15 @@
       return;
     }
 
-    // Leaving meme phase → entering swift phase
-    if (inMemePhase && nextMsg.style === 'msg-swift') {
+    // Leaving meme phase → entering cierre
+    if (inMemePhase && nextMsg.style !== 'msg-meme') {
       inMemePhase = false;
-      inSwiftPhase = true;
       stopAutoMemeAdvance();
       document.getElementById('meme-tap-hint').classList.remove('show');
       
-      // Cambiar al fondo final (Taylor Swift + cierre)
+      // Cambiar al fondo final
       const bgEl = document.querySelector('.bg-layer');
-      bgEl.classList.remove('swift-bg');
+      bgEl.classList.remove('message-bg');
       bgEl.classList.add('end-bg');
       
       clearAllMemes(() => {
@@ -680,21 +805,37 @@
     // Reset classes
     textEl.className = 'msg-line';
     if (msg.style) textEl.classList.add(msg.style);
-
-    textEl.innerHTML = msg.text.replace(/ \/ /g, '<br>');
+    textEl.innerHTML = '';
 
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         textEl.classList.add('visible');
+        typeText(textEl, msg.text, 0, () => {
+          document.getElementById('dot-' + currentIndex)?.classList.add('done');
+          const isLast = currentIndex === messages.length - 1;
+          hintEl.style.opacity = isLast ? '0' : '1';
+          isAnimating = false;
+        });
       });
     });
+  }
 
-    document.getElementById('dot-' + currentIndex)?.classList.add('done');
+  function typeText(element, text, index, callback) {
+    const nextChar = text[index];
 
-    const isLast = currentIndex === messages.length - 1;
-    hintEl.style.opacity = isLast ? '0' : '1';
+    if (index >= text.length) {
+      callback();
+      return;
+    }
 
-    setTimeout(() => { isAnimating = false; }, 950);
+    if (nextChar === '/') {
+      element.innerHTML += '<br>';
+      typeText(element, text, index + 1, callback);
+      return;
+    }
+
+    element.innerHTML += nextChar;
+    setTimeout(() => typeText(element, text, index + 1, callback), 28);
   }
 
   /* ── Auto-advance helper para memes ──────────────────────────── */
@@ -767,12 +908,17 @@
     const dotsEl = document.getElementById('progress-dots');
     const endEl  = document.getElementById('end-screen');
     const bgEl   = document.querySelector('.bg-layer');
+    const overlayEl = document.querySelector('.bg-overlay');
 
     msgEl.style.opacity  = '0';
     dotsEl.style.opacity = '0';
     
-    // Cambiar al fondo 2
+    // Cambiar al fondo 2 y activar pulso de brillo
+    bgEl.classList.remove('message-bg');
     bgEl.classList.add('end-bg');
+    overlayEl.classList.add('glow');
+
+    phase2Active = false;
 
     setTimeout(() => {
       msgEl.style.display  = 'none';
@@ -780,6 +926,36 @@
       endEl.classList.add('active');
     }, 1200);
   }
+
+  function openPoem(key) {
+    const poemKey = key === 'A1' || key === 'A2' || key === 'A3' ? key : key;
+    const poemText = acrosticPoems[poemKey] || acrosticPoems[key];
+    const overlay = document.getElementById('poem-overlay');
+    const letterEl = document.getElementById('poem-letter');
+    const textEl = document.getElementById('poem-text');
+
+    letterEl.textContent = key[0];
+    textEl.textContent = poemText || 'Este poema aún está en camino.';
+    overlay.classList.add('active');
+    overlay.focus();
+  }
+
+  function closePoem() {
+    const overlay = document.getElementById('poem-overlay');
+    overlay.classList.remove('active');
+  }
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      closePoem();
+    }
+  });
+
+  document.getElementById('poem-overlay').addEventListener('click', (event) => {
+    if (event.target === event.currentTarget) {
+      closePoem();
+    }
+  });
 
   /* ============================================================
      TAP / CLICK HANDLER
