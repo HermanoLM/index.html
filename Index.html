@@ -41,6 +41,13 @@
     background-repeat: no-repeat;
     /* fallback gradient if no image is set */
     background-color: #1a0f0b;
+    transition: background-image 0.8s ease;
+  }
+  .bg-layer.swift-bg {
+    background-image: url('fondo.png');
+  }
+  .bg-layer.end-bg {
+    background-image: url('fondo2.png');
   }
   .bg-overlay {
     position: fixed; inset: 0; z-index: 1;
@@ -539,6 +546,10 @@
     setTimeout(() => {
       waitEl.style.display = 'none';
 
+      // Cambiar al fondo para mensajes
+      const bgEl = document.querySelector('.bg-layer');
+      bgEl.classList.add('swift-bg');
+
       // Build progress dots
       const dotsEl = document.getElementById('progress-dots');
       messages.forEach((_, i) => {
@@ -616,6 +627,12 @@
       inSwiftPhase = true;
       stopAutoMemeAdvance();
       document.getElementById('meme-tap-hint').classList.remove('show');
+      
+      // Cambiar al fondo final (Taylor Swift + cierre)
+      const bgEl = document.querySelector('.bg-layer');
+      bgEl.classList.remove('swift-bg');
+      bgEl.classList.add('end-bg');
+      
       clearAllMemes(() => {
         currentIndex++;
         renderNormalMessage();
@@ -749,9 +766,13 @@
     const msgEl  = document.getElementById('phase-msg');
     const dotsEl = document.getElementById('progress-dots');
     const endEl  = document.getElementById('end-screen');
+    const bgEl   = document.querySelector('.bg-layer');
 
     msgEl.style.opacity  = '0';
     dotsEl.style.opacity = '0';
+    
+    // Cambiar al fondo 2
+    bgEl.classList.add('end-bg');
 
     setTimeout(() => {
       msgEl.style.display  = 'none';
