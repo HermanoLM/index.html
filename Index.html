@@ -35,7 +35,7 @@
   ============================================================ */
   .bg-layer {
     position: fixed; inset: 0; z-index: 0;
-    background-image: url('tu-imagen.jpg'); /* ← PON AQUÍ LA RUTA DE TU IMAGEN */
+    background-image: url('bg.jpg.png'); /* ← PON AQUÍ LA RUTA DE TU IMAGEN */
     background-size: cover;
     background-position: center center;
     background-repeat: no-repeat;
@@ -312,13 +312,51 @@
     font-size: clamp(1rem, 4vw, 1.35rem);
   }
 
-  /* Meme / inside-joke style */
-  .msg-meme {
+  /* ── Floating meme bubbles ─────────────────────────────────── */
+  .meme-bubble {
+    position: fixed;
+    z-index: 22;
     font-family: 'Raleway', sans-serif;
     font-weight: 300;
-    font-size: clamp(1rem, 4.2vw, 1.4rem);
-    letter-spacing: 0.01em;
+    font-size: clamp(0.85rem, 3.8vw, 1.1rem);
+    color: var(--cream);
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(201,169,110,0.25);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    padding: 0.65rem 1.1rem;
+    border-radius: 18px 18px 18px 4px;
+    max-width: 55vw;
+    text-shadow: 0 1px 8px rgba(0,0,0,0.5);
+    opacity: 0;
+    pointer-events: none;
+    line-height: 1.4;
+    /* animation handled via wrapper opacity only */
+    transition: opacity 0.6s ease;
   }
+  .meme-bubble.show { opacity: 1; }
+  .meme-bubble.hide {
+    opacity: 0;
+    transition: opacity 0.7s ease;
+  }
+
+  /* Tap hint during meme phase */
+  .meme-tap-hint {
+    position: fixed;
+    bottom: 2rem; left: 0; right: 0;
+    text-align: center;
+    font-family: 'Raleway', sans-serif;
+    font-weight: 200;
+    font-size: 0.62rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--blush);
+    opacity: 0;
+    transition: opacity 0.8s ease;
+    pointer-events: none;
+    z-index: 23;
+  }
+  .meme-tap-hint.show { opacity: 0.6; }
 </style>
 </head>
 <body>
@@ -381,6 +419,10 @@
 <!-- Progress dots -->
 <div class="progress-dots" id="progress-dots"></div>
 
+<!-- Meme floating layer -->
+<div id="meme-layer" style="position:fixed;inset:0;z-index:22;pointer-events:none;"></div>
+<div class="meme-tap-hint" id="meme-tap-hint">toca para continuar</div>
+
 <!-- End screen -->
 <div class="end-screen" id="end-screen">
   <p class="end-heart">♡</p>
@@ -404,13 +446,16 @@
   ============================================================ */
   const messages = [
     // ── Textos del corazón ──────────────────────────────────────
-    { text: "Este año fue diferente al anterior, cuando todavía podíamos compartir los momentos tranquilos de la semana.", style: "" },
-    { text: "El tiempo se volvió esquivo y no pude estar presente como hubiera querido.", style: "" },
-    { text: "Aun así, quiero que sepas que nunca has dejado de estar en mis pensamientos.", style: "" },
-    { text: "Eres una persona verdaderamente maravillosa, y tener la fortuna de conocerte ha sido uno de los regalos más bonitos que la vida me ha dado.", style: "" },
-    { text: "Eres la clase de amistad que se aprecia profundamente, la que te hace sentir que el mundo es un lugar un poco mejor.", style: "" },
-    { text: "Te quiero mucho y deseo de corazón que todo lo que te propongas se haga realidad — porque te lo mereces más que nadie.", style: "" },
-    { text: "Me alegra enormemente haber encontrado en tan poco tiempo una amistad tan bonita. Lo dije el año pasado, y con más certeza que nunca, lo repito hoy.", style: "" },
+    { text: "Hay personas que llegan sin hacer ruido y aun así lo cambian todo. Tú llegaste así.", style: "" },
+    { text: "Este año fue distinto. El tiempo se volvió esquivo, las semanas pasaron rápido, y yo no estuve tan presente como hubiera querido.", style: "" },
+    { text: "Y eso me pesa. Porque hay personas que merecen más que el silencio de los días ocupados.", style: "" },
+    { text: "Pero quiero que sepas algo: aunque no siempre lo diga, aunque no siempre aparezca — nunca has dejado de estar en mis pensamientos.", style: "" },
+    { text: "Eres de esas personas que el mundo necesita más. De las que escuchan de verdad, de las que se quedan cuando todo se complica.", style: "" },
+    { text: "Los girasoles siempre buscan la luz, no importa cuántas nubes haya. Tú eres exactamente así.", style: "" },
+    { text: "Conocerte ha sido uno de esos regalos que la vida da sin avisar — de los que uno no sabe que necesitaba hasta que ya los tiene.", style: "" },
+    { text: "Eres la clase de amistad que no se encuentra fácil. La que te hace sentir que el mundo es un lugar un poco más habitable.", style: "" },
+    { text: "Te quiero mucho. Y deseo con todo que cada cosa que sueñes se haga real — porque si hay alguien que se lo merece, eres tú.", style: "" },
+    { text: "Lo dije el año pasado y hoy lo repito con más certeza que nunca: me alegra enormemente haber encontrado en tan poco tiempo una amistad tan bonita.", style: "" },
 
     // ── Mensajes internos / memes ────────────────────────────────
     { text: "-Puta, Samantha agarra la bolsa", style: "msg-meme" },
@@ -419,6 +464,7 @@
     { text: "-pio pio pio", style: "msg-meme" },
     { text: "-La papa", style: "msg-meme" },
     { text: "-Pepino wow…", style: "msg-meme" },
+    { text: "-atún", style: "msg-meme" },
 
     // ── Taylor Swift ─────────────────────────────────────────────
     { text: "— I'm queen of sand castles he destroys / Cause it's fit for a hurt person / To hurt more people.", style: "msg-swift" },
@@ -427,7 +473,10 @@
     { text: "— I hate it here so I will go to secret gardens in my mind / Before the world puts out my fire.", style: "msg-swift" },
 
     // ── Cierre ───────────────────────────────────────────────────
-    { text: "Tal vez no llegue a ser tu persona favorita, pero quiero que sepas que siempre, en cualquier momento, cuando sientas que todo se cae o simplemente necesites a alguien... ahí estaré para ti.", style: "" },
+    { text: "Tal vez no llegue a ser tu persona favorita. Pero sí quiero ser de las que no fallan.", style: "" },
+    { text: "Quiero que sepas que en cualquier momento, cuando sientas que todo se cae, cuando necesites a alguien que simplemente esté —", style: "" },
+    { text: "aquí voy a estar. Sin preguntas. Sin condiciones. Como los girasoles, que no dejan de voltear hacia donde está la luz.", style: "" },
+    { text: "Feliz cumpleaños, Samantha. 🌻", style: "" },
   ];
 
   /* ============================================================
@@ -436,6 +485,7 @@
   let currentIndex = -1;
   let isAnimating   = false;
   let phase2Active  = false;
+  let autoMemeInterval = null;
 
   /* ============================================================
      COUNTDOWN LOGIC
@@ -512,60 +562,187 @@
   /* ============================================================
      MESSAGE DISPLAY
   ============================================================ */
+
+  // Posiciones orbitales alrededor del centro — distribuidas en anillo
+  // con variación sutil para que no se vean mecánicas
+  const memePositions = [
+    { top: '12%',  left: '50%', transform: 'translateX(-50%)' },  // arriba centro
+    { top: '22%',  left: '72%', transform: 'none'              },  // arriba derecha
+    { top: '48%',  left: '78%', transform: 'none'              },  // derecha
+    { top: '72%',  left: '62%', transform: 'none'              },  // abajo derecha
+    { top: '75%',  left: '18%', transform: 'none'              },  // abajo izquierda
+    { top: '48%',  left: '4%',  transform: 'none'              },  // izquierda
+    { top: '22%',  left: '8%',  transform: 'none'              },  // arriba izquierda
+    { top: '35%',  left: '55%', transform: 'none'              },  // intermedio derecha
+  ];
+  let memePositionIndex = 0;
+  let activeMemeBubbles = [];
+  let inMemePhase = false;
+  let inSwiftPhase = false;
+
   function showNext() {
     if (isAnimating) return;
     if (currentIndex >= messages.length - 1) {
-      showEnd();
+      if (inMemePhase) clearAllMemes(() => showEnd());
+      else showEnd();
       return;
     }
 
+    const nextMsg = messages[currentIndex + 1];
+
+    // Entering meme phase
+    if (nextMsg.style === 'msg-meme' && !inMemePhase) {
+      inMemePhase = true;
+      inSwiftPhase = false;
+      // Hide normal message stage
+      const textEl = document.getElementById('msg-text');
+      const hintEl = document.getElementById('tap-hint');
+      textEl.classList.remove('visible');
+      textEl.classList.add('exit');
+      hintEl.style.opacity = '0';
+      document.getElementById('meme-tap-hint').classList.add('show');
+      setTimeout(() => {
+        currentIndex++;
+        spawnMemeBubble(messages[currentIndex]);
+        // Inicia auto-avance cada 3.5 segundos en la fase de memes
+        startAutoMemeAdvance();
+      }, 600);
+      return;
+    }
+
+    // Leaving meme phase → entering swift phase
+    if (inMemePhase && nextMsg.style === 'msg-swift') {
+      inMemePhase = false;
+      inSwiftPhase = true;
+      stopAutoMemeAdvance();
+      document.getElementById('meme-tap-hint').classList.remove('show');
+      clearAllMemes(() => {
+        currentIndex++;
+        renderNormalMessage();
+      });
+      return;
+    }
+
+    // Normal meme tap → spawn next bubble
+    if (inMemePhase) {
+      isAnimating = true;
+      currentIndex++;
+      spawnMemeBubble(messages[currentIndex]);
+      document.getElementById('dot-' + currentIndex)?.classList.add('done');
+      setTimeout(() => { isAnimating = false; }, 600);
+      return;
+    }
+
+    // Normal / Swift messages
     isAnimating = true;
     const textEl = document.getElementById('msg-text');
     const hintEl = document.getElementById('tap-hint');
 
-    // If there's a current message, exit it first
     if (currentIndex >= 0) {
       textEl.classList.remove('visible');
       textEl.classList.add('exit');
-
       setTimeout(() => {
         currentIndex++;
-        renderMessage(textEl, hintEl);
+        renderNormalMessage();
       }, 600);
     } else {
       currentIndex++;
-      renderMessage(textEl, hintEl);
+      renderNormalMessage();
     }
   }
 
-  function renderMessage(textEl, hintEl) {
-    const msg = messages[currentIndex];
+  function renderNormalMessage() {
+    const msg    = messages[currentIndex];
+    const textEl = document.getElementById('msg-text');
+    const hintEl = document.getElementById('tap-hint');
+    const phaseEl = document.getElementById('phase-msg');
+
+    // Make sure phase-msg is visible
+    phaseEl.classList.add('active');
 
     // Reset classes
     textEl.className = 'msg-line';
     if (msg.style) textEl.classList.add(msg.style);
 
-    // Set content (preserve line breaks written as " / ")
     textEl.innerHTML = msg.text.replace(/ \/ /g, '<br>');
 
-    // Trigger entrance animation
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         textEl.classList.add('visible');
       });
     });
 
-    // Update progress dot
     document.getElementById('dot-' + currentIndex)?.classList.add('done');
 
-    // Show/hide tap hint
-    if (currentIndex === messages.length - 1) {
-      hintEl.style.opacity = '0';
-    } else {
-      hintEl.style.opacity = '1';
-    }
+    const isLast = currentIndex === messages.length - 1;
+    hintEl.style.opacity = isLast ? '0' : '1';
 
     setTimeout(() => { isAnimating = false; }, 950);
+  }
+
+  /* ── Auto-advance helper para memes ──────────────────────────── */
+  function startAutoMemeAdvance() {
+    // Detén cualquier intervalo anterior
+    stopAutoMemeAdvance();
+    
+    // Auto-avanza cada 3.5 segundos durante la fase de memes
+    autoMemeInterval = setInterval(() => {
+      if (inMemePhase && !isAnimating) {
+        showNext();
+      }
+    }, 3500);
+  }
+
+  function stopAutoMemeAdvance() {
+    if (autoMemeInterval) {
+      clearInterval(autoMemeInterval);
+      autoMemeInterval = null;
+    }
+  }
+
+  /* ── Meme bubble helpers ─────────────────────────────────────── */
+  function spawnMemeBubble(msg) {
+    const layer = document.getElementById('meme-layer');
+    const pos   = memePositions[memePositionIndex % memePositions.length];
+    memePositionIndex++;
+
+    const bubble = document.createElement('div');
+    bubble.className = 'meme-bubble';
+    bubble.textContent = msg.text;
+    bubble.style.top  = pos.top;
+    bubble.style.left = pos.left;
+    if (pos.transform !== 'none') bubble.style.transform = pos.transform;
+    layer.appendChild(bubble);
+
+    // Fade in
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        bubble.classList.add('show');
+      });
+    });
+
+    activeMemeBubbles.push(bubble);
+
+    // Auto-fade after 4.5s if more than 3 bubbles visible
+    if (activeMemeBubbles.length > 3) {
+      const old = activeMemeBubbles.shift();
+      setTimeout(() => fadeBubble(old), 400);
+    }
+  }
+
+  function fadeBubble(bubble) {
+    bubble.classList.remove('show');
+    bubble.classList.add('hide');
+    setTimeout(() => bubble.remove(), 800);
+  }
+
+  function clearAllMemes(callback) {
+    const bubbles = [...activeMemeBubbles];
+    activeMemeBubbles = [];
+    bubbles.forEach((b, i) => {
+      setTimeout(() => fadeBubble(b), i * 120);
+    });
+    setTimeout(callback, bubbles.length * 120 + 800);
   }
 
   function showEnd() {
