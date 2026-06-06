@@ -18,8 +18,16 @@
     --rose:     #c47a6a;
     --deep:     #2a1f1a;
     --gold:     #c9a96e;
+    --gold-soft: rgba(201,169,110,0.18);
     --white:    #ffffff;
     --overlay:  rgba(20, 10, 8, 0.55);
+    /* Per-letter accent colors for poems */
+    --accent-S: #c9a96e;
+    --accent-A: #e8c4b0;
+    --accent-M: #c47a6a;
+    --accent-N: #b0c4d8;
+    --accent-T: #a8c4a2;
+    --accent-H: #d4a8c7;
   }
 
   html, body {
@@ -28,6 +36,18 @@
     font-family: 'Raleway', sans-serif;
     cursor: default;
     -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Grain overlay for depth */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+    opacity: 0.035;
+    mix-blend-mode: overlay;
   }
 
   /* ============================================================
@@ -111,10 +131,22 @@
     font-size: clamp(3rem, 14vw, 6.5rem);
     color: var(--cream);
     line-height: 1;
-    text-shadow: 0 0 40px rgba(201,169,110,0.35), 0 2px 16px rgba(0,0,0,0.6);
+    text-shadow: 
+      0 0 12px rgba(201,169,110,0.9),
+      0 0 40px rgba(201,169,110,0.45),
+      0 0 80px rgba(201,169,110,0.2),
+      0 2px 16px rgba(0,0,0,0.6);
     min-width: 2ch;
     text-align: center;
     letter-spacing: -0.01em;
+    animation: candleFlicker 3.5s ease-in-out infinite alternate;
+  }
+
+  @keyframes candleFlicker {
+    0%   { text-shadow: 0 0 12px rgba(201,169,110,0.9), 0 0 40px rgba(201,169,110,0.45), 0 0 80px rgba(201,169,110,0.2), 0 2px 16px rgba(0,0,0,0.6); }
+    30%  { text-shadow: 0 0 8px  rgba(201,169,110,0.7), 0 0 28px rgba(201,169,110,0.3), 0 0 55px rgba(201,169,110,0.15), 0 2px 16px rgba(0,0,0,0.6); }
+    60%  { text-shadow: 0 0 18px rgba(201,169,110,1.0), 0 0 55px rgba(201,169,110,0.55), 0 0 90px rgba(201,169,110,0.25), 0 2px 16px rgba(0,0,0,0.6); }
+    100% { text-shadow: 0 0 10px rgba(201,169,110,0.8), 0 0 35px rgba(201,169,110,0.4), 0 0 70px rgba(201,169,110,0.18), 0 2px 16px rgba(0,0,0,0.6); }
   }
   .clock-label {
     font-family: 'Raleway', sans-serif;
@@ -148,6 +180,82 @@
     text-shadow: 0 2px 12px rgba(0,0,0,0.5);
     animation: fadeSlideUp 1.8s 0.4s ease both;
   }
+
+  /* Floating gold particles canvas */
+  #particle-canvas {
+    position: fixed;
+    inset: 0;
+    z-index: 5;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 1.5s ease;
+  }
+  #particle-canvas.active { opacity: 1; }
+
+  /* Bloom open button — replaces plain open-btn */
+  .open-btn {
+    display: none;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: clamp(1rem, 4vw, 1.3rem);
+    color: var(--cream);
+    border: 1px solid rgba(201,169,110,0.55);
+    background: rgba(255,255,255,0.07);
+    padding: 0.9rem 2.4rem;
+    letter-spacing: 0.15em;
+    cursor: pointer;
+    border-radius: 2px;
+    backdrop-filter: blur(6px);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s ease;
+    animation: fadeSlideUp 1s ease both, btnGlow 2.8s ease-in-out infinite alternate;
+  }
+  .open-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent 40%, rgba(201,169,110,0.12) 60%, transparent 80%);
+    transform: translateX(-100%);
+    transition: transform 0.7s ease;
+  }
+  .open-btn:hover::before { transform: translateX(100%); }
+  .open-btn:hover {
+    background: rgba(201,169,110,0.15);
+    border-color: var(--gold);
+    box-shadow: 0 0 28px rgba(201,169,110,0.25), 0 0 60px rgba(201,169,110,0.1);
+    letter-spacing: 0.22em;
+  }
+  .open-btn.show { display: block; }
+
+  @keyframes btnGlow {
+    0%   { box-shadow: 0 0 10px rgba(201,169,110,0.1); }
+    100% { box-shadow: 0 0 30px rgba(201,169,110,0.28), 0 0 60px rgba(201,169,110,0.12); }
+  }
+
+  /* Bloom burst overlay (flowers appearing on launch) */
+  #bloom-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 15;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+  }
+  .bloom-ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid rgba(201,169,110,0.6);
+    animation: none;
+  }
+  @keyframes bloomExpand {
+    0%   { transform: scale(0); opacity: 0.8; }
+    100% { transform: scale(8); opacity: 0; }
+  }
+
+
 
   /* Decorative thin line */
   .deco-line {
@@ -382,102 +490,256 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 0.85rem;
+    gap: 0.75rem;
     max-width: 90vw;
     padding: 1rem;
   }
   .final-letter {
-    min-width: 3.3rem;
-    min-height: 3.3rem;
-    padding: 0.85rem 1rem;
-    border: 1px solid rgba(255,255,255,0.22);
-    border-radius: 18px;
-    background: rgba(255,255,255,0.08);
+    min-width: 3.5rem;
+    min-height: 3.5rem;
+    padding: 0.9rem 1rem;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 3px;
+    background: rgba(255,255,255,0.05);
     color: var(--cream);
     font-family: 'Cormorant Garamond', serif;
-    font-size: clamp(1.3rem, 5vw, 2rem);
+    font-size: clamp(1.5rem, 6vw, 2.2rem);
     font-weight: 400;
     text-align: center;
     cursor: pointer;
-    transition: transform 0.25s ease, background 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
-    backdrop-filter: blur(10px);
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), background 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    backdrop-filter: blur(8px);
   }
+  .final-letter::before {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--letter-color, var(--gold));
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+    transform-origin: left;
+  }
+  .final-letter:hover::before,
+  .final-letter:focus::before { transform: scaleX(1); }
   .final-letter:hover,
   .final-letter:focus {
     outline: none;
-    transform: translateY(-4px);
-    background: rgba(255,255,255,0.16);
-    border-color: rgba(255,255,255,0.4);
-    box-shadow: 0 18px 45px rgba(0,0,0,0.14);
+    transform: translateY(-6px) scale(1.04);
+    background: rgba(255,255,255,0.1);
+    border-color: rgba(255,255,255,0.3);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.2), 0 0 20px var(--letter-glow, rgba(201,169,110,0.15));
   }
   .final-menu-label {
     width: 100%;
     text-align: center;
-    font-size: clamp(0.95rem, 3vw, 1.1rem);
+    font-size: clamp(0.7rem, 2.5vw, 0.85rem);
     color: var(--blush);
-    letter-spacing: 0.25em;
-    margin-bottom: 0.8rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    margin-bottom: 0.6rem;
+    opacity: 0.7;
+  }
+  /* Stagger in each letter */
+  .final-letter { opacity: 0; animation: letterAppear 0.5s ease forwards; }
+  @keyframes letterAppear {
+    from { opacity:0; transform: translateY(20px) scale(0.8); }
+    to   { opacity:1; transform: translateY(0) scale(1); }
   }
   .poem-modal-overlay {
     position: fixed;
     inset: 0;
     z-index: 35;
-    display: none;
+    display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(14, 10, 8, 0.72);
-    backdrop-filter: blur(4px);
+    background: rgba(14, 10, 8, 0);
+    backdrop-filter: blur(0px);
+    opacity: 0;
+    pointer-events: none;
+    transition: background 0.5s ease, backdrop-filter 0.5s ease, opacity 0.4s ease;
   }
   .poem-modal-overlay.active {
     display: flex;
+    opacity: 1;
+    pointer-events: all;
+    background: rgba(14, 10, 8, 0.78);
+    backdrop-filter: blur(8px);
   }
   .poem-modal {
     width: min(560px, 92vw);
-    background: rgba(19, 13, 10, 0.96);
-    border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 26px;
-    padding: 1.6rem 1.4rem;
-    box-shadow: 0 30px 70px rgba(0,0,0,0.35);
+    max-height: 80vh;
+    overflow-y: auto;
+    background: rgba(12, 8, 6, 0.97);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 3px;
+    padding: 2.4rem 2rem 2rem;
+    box-shadow: 0 40px 100px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04) inset;
     color: var(--cream);
-    animation: fadeSlideUp 0.5s ease both;
     position: relative;
+    transform-origin: top center;
+    transform: scaleY(0.1) translateY(-20px);
+    opacity: 0;
+    transition: transform 0.55s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(201,169,110,0.3) transparent;
+  }
+  .poem-modal::-webkit-scrollbar { width: 4px; }
+  .poem-modal::-webkit-scrollbar-track { background: transparent; }
+  .poem-modal::-webkit-scrollbar-thumb { background: rgba(201,169,110,0.3); border-radius: 2px; }
+  .poem-modal-overlay.active .poem-modal {
+    transform: scaleY(1) translateY(0);
+    opacity: 1;
+  }
+  /* Fold line at top */
+  .poem-modal::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 2rem; right: 2rem;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--poem-accent, var(--gold)), transparent);
+    opacity: 0.6;
+  }
+  /* Corner fold decoration */
+  .poem-modal::after {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 0; height: 0;
+    border-style: solid;
+    border-width: 0 28px 28px 0;
+    border-color: transparent rgba(201,169,110,0.2) transparent transparent;
   }
   .poem-close {
     position: absolute;
     top: 1rem;
     right: 1rem;
-    width: 2rem;
-    height: 2rem;
+    width: 1.8rem;
+    height: 1.8rem;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid rgba(255,255,255,0.18);
+    border: 1px solid rgba(255,255,255,0.12);
     border-radius: 50%;
-    background: rgba(255,255,255,0.08);
-    color: var(--cream);
-    font-size: 1.2rem;
+    background: rgba(255,255,255,0.05);
+    color: var(--blush);
+    font-size: 1rem;
     cursor: pointer;
-    transition: transform 0.2s ease, background 0.2s ease;
+    transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+    z-index: 1;
   }
   .poem-close:hover {
-    transform: scale(1.05);
-    background: rgba(255,255,255,0.18);
+    transform: rotate(90deg) scale(1.1);
+    background: rgba(255,255,255,0.12);
+    border-color: rgba(255,255,255,0.3);
   }
   .poem-letter {
-    margin-bottom: 0.8rem;
+    margin-bottom: 0.2rem;
     font-family: 'Dancing Script', cursive;
-    font-size: clamp(2rem, 7vw, 3rem);
-    color: var(--gold);
+    font-size: clamp(3rem, 9vw, 4.5rem);
+    color: var(--poem-accent, var(--gold));
     text-align: center;
+    text-shadow: 0 0 40px var(--poem-accent, var(--gold)), 0 0 80px rgba(201,169,110,0.15);
+    line-height: 1;
+    animation: none;
   }
+  .poem-modal-overlay.active .poem-letter {
+    animation: letterReveal 0.6s 0.35s ease both;
+  }
+  @keyframes letterReveal {
+    from { opacity:0; transform: scale(0.6) rotate(-8deg); }
+    to   { opacity:1; transform: scale(1) rotate(0deg); }
+  }
+
+  /* Acrostic lines — each line reveals with a stagger */
   .poem-text {
     font-family: 'Cormorant Garamond', serif;
-    line-height: 1.8;
+    line-height: 2;
     letter-spacing: 0.01em;
     font-size: clamp(1rem, 3.8vw, 1.2rem);
-    text-align: center;
+    text-align: left;
     color: var(--cream);
+    padding: 0.4rem 0 0;
   }
+  .poem-acro-line {
+    display: block;
+    opacity: 0;
+    transform: translateX(-10px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    line-height: 2;
+  }
+  .poem-acro-line.reveal {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  .poem-acro-initial {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1em;
+    font-weight: 400;
+    color: var(--cream);
+    flex-shrink: 0;
+    line-height: 1.75;
+  }
+  .poem-divider {
+    width: 60%;
+    height: 1px;
+    background: linear-gradient(to right, var(--poem-accent, var(--gold)), transparent);
+    margin: 1rem auto 0.8rem 0;
+    opacity: 0.3;
+  }
+
+  /* ============================================================
+     CUSTOM CURSOR — sunflower (desktop only)
+  ============================================================ */
+  @media (pointer: fine) {
+    html, body, * { cursor: none !important; }
+
+    #custom-cursor {
+      position: fixed;
+      top: 0; left: 0;
+      width: 28px; height: 28px;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: opacity 0.3s ease;
+      opacity: 0;
+      will-change: left, top;
+    }
+    #custom-cursor.visible { opacity: 1; }
+    #custom-cursor.clicking svg {
+      transform: scale(0.78) rotate(30deg);
+      transition: transform 0.1s ease;
+    }
+  }
+
+  /* ============================================================
+     POEM SIGNATURE LINE — drawn on close
+  ============================================================ */
+  .poem-signature {
+    display: block;
+    margin: 1.4rem 0 0.4rem;
+    height: 20px;
+    position: relative;
+  }
+  .poem-signature svg {
+    width: 100%;
+    height: 20px;
+    overflow: visible;
+  }
+  .poem-signature path {
+    fill: none;
+    stroke: var(--poem-accent, var(--gold));
+    stroke-width: 1.2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    opacity: 0.55;
+    stroke-dasharray: 300;
+    stroke-dashoffset: 300;
+    transition: stroke-dashoffset 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .poem-signature path.draw { stroke-dashoffset: 0; }
 </style>
 </head>
 <body>
@@ -485,6 +747,28 @@
 <!-- Shared background layers -->
 <div class="bg-layer"></div>
 <div class="bg-overlay"></div>
+<canvas id="particle-canvas"></canvas>
+<div id="bloom-overlay"></div>
+
+<!-- Custom cursor -->
+<div id="custom-cursor">
+  <svg viewBox="0 0 28 28" xmlns="http://www.w3.org/2000/svg">
+    <!-- Petals -->
+    <g opacity="0.92">
+      <ellipse cx="14" cy="6"  rx="2.2" ry="4.5" fill="#c9a96e" transform="rotate(0   14 14)"/>
+      <ellipse cx="14" cy="6"  rx="2.2" ry="4.5" fill="#c9a96e" transform="rotate(45  14 14)"/>
+      <ellipse cx="14" cy="6"  rx="2.2" ry="4.5" fill="#c9a96e" transform="rotate(90  14 14)"/>
+      <ellipse cx="14" cy="6"  rx="2.2" ry="4.5" fill="#c9a96e" transform="rotate(135 14 14)"/>
+      <ellipse cx="14" cy="6"  rx="2.2" ry="4.5" fill="#c9a96e" transform="rotate(180 14 14)"/>
+      <ellipse cx="14" cy="6"  rx="2.2" ry="4.5" fill="#c9a96e" transform="rotate(225 14 14)"/>
+      <ellipse cx="14" cy="6"  rx="2.2" ry="4.5" fill="#c9a96e" transform="rotate(270 14 14)"/>
+      <ellipse cx="14" cy="6"  rx="2.2" ry="4.5" fill="#c9a96e" transform="rotate(315 14 14)"/>
+    </g>
+    <!-- Center -->
+    <circle cx="14" cy="14" r="4.5" fill="#2a1f1a"/>
+    <circle cx="14" cy="14" r="3"   fill="#3d2e1e"/>
+  </svg>
+</div>
 
 <!-- ====================================================
      PHASE 1 — COUNTDOWN
@@ -547,21 +831,27 @@
 <!-- End screen / Final menu -->
 <div class="end-screen" id="end-screen">
   <div class="final-menu" id="final-menu" aria-label="Menú final de acróstico">
-    <div class="final-menu-label">Toca una letra para leer un poema</div>
-    <button class="final-letter" type="button" data-key="S" onclick="openPoem('S')">S</button>
-    <button class="final-letter" type="button" data-key="A1" onclick="openPoem('A1')">A</button>
-    <button class="final-letter" type="button" data-key="M" onclick="openPoem('M')">M</button>
-    <button class="final-letter" type="button" data-key="A2" onclick="openPoem('A2')">A</button>
-    <button class="final-letter" type="button" data-key="N" onclick="openPoem('N')">N</button>
-    <button class="final-letter" type="button" data-key="T" onclick="openPoem('T')">T</button>
-    <button class="final-letter" type="button" data-key="H" onclick="openPoem('H')">H</button>
-    <button class="final-letter" type="button" data-key="A3" onclick="openPoem('A3')">A</button>
+    <div class="final-menu-label">Toca una letra para leer su poema</div>
+    <button class="final-letter" type="button" data-key="S" onclick="openPoem('S')" style="--letter-color:#c9a96e;--letter-glow:rgba(201,169,110,0.2);animation-delay:0.1s">S</button>
+    <button class="final-letter" type="button" data-key="A1" onclick="openPoem('A1')" style="--letter-color:#e8c4b0;--letter-glow:rgba(232,196,176,0.2);animation-delay:0.2s">A</button>
+    <button class="final-letter" type="button" data-key="M" onclick="openPoem('M')" style="--letter-color:#c47a6a;--letter-glow:rgba(196,122,106,0.2);animation-delay:0.3s">M</button>
+    <button class="final-letter" type="button" data-key="A2" onclick="openPoem('A2')" style="--letter-color:#e8c4b0;--letter-glow:rgba(232,196,176,0.2);animation-delay:0.4s">A</button>
+    <button class="final-letter" type="button" data-key="N" onclick="openPoem('N')" style="--letter-color:#b0c4d8;--letter-glow:rgba(176,196,216,0.2);animation-delay:0.5s">N</button>
+    <button class="final-letter" type="button" data-key="T" onclick="openPoem('T')" style="--letter-color:#a8c4a2;--letter-glow:rgba(168,196,162,0.2);animation-delay:0.6s">T</button>
+    <button class="final-letter" type="button" data-key="H" onclick="openPoem('H')" style="--letter-color:#d4a8c7;--letter-glow:rgba(212,168,199,0.2);animation-delay:0.7s">H</button>
+    <button class="final-letter" type="button" data-key="A3" onclick="openPoem('A3')" style="--letter-color:#e8c4b0;--letter-glow:rgba(232,196,176,0.2);animation-delay:0.8s">A</button>
   </div>
   <div class="poem-modal-overlay" id="poem-overlay" role="dialog" aria-modal="true" aria-labelledby="poem-letter" tabindex="-1">
     <div class="poem-modal">
       <button class="poem-close" id="poem-close" type="button" onclick="closePoem()">×</button>
       <p class="poem-letter" id="poem-letter"></p>
-      <p class="poem-text" id="poem-text"></p>
+      <div class="poem-text" id="poem-text"></div>
+      <!-- Signature line drawn before closing -->
+      <span class="poem-signature" id="poem-signature">
+        <svg viewBox="0 0 300 20" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+          <path id="sig-path" d="M4,12 C20,4 40,18 65,10 C90,2 110,16 140,8 C170,0 195,16 225,9 C250,3 270,14 296,8"/>
+        </svg>
+      </span>
     </div>
   </div>
 </div>
@@ -602,14 +892,86 @@
   ];
 
   const acrosticPoems = {
-    S: "Si el mundo se vuelve ruido y tempestad, busca en mis palabras un refugio de paz; un espacio calmo donde reina la honestidad.",
-    M: "Mirar el camino recorrido y sonreír, sabiendo que coincidir en este vasto universo fue el detalle más bonito que el destino pudo escribir.",
-    A1: "A través de los días y la distancia que asoma, permanece intacto el cariño que se asienta, como un faro firme que el tiempo no desmonta.",
-    A2: "Agradezco el instante en que tu luz cruzó mi andar, porque las almas nobles y de mirada sincera son las que de verdad vale la pena conservar.",
-    N: "No importa cuán esquivo se ponga a veces el reloj, hay certezas que se guardan seguras en el alma, ajenas al silencio y al diario ir y venir.",
-    T: "Tu presencia es esa calma que alegra los días compartidos, un recordatorio sutil de que en la sencillez de una buena amistad se encuentra el verdadero sentido.",
-    H: "Haces que el entorno se vuelva un poco más brillante, con esa magia única que llevas dentro y que dejas en cada detalle importante.",
-    A3: "Aquí estaré, firme y sin condiciones, para cuando el viento sople fuerte o solo busques calma en medio de las estaciones."
+    S: {
+      color: '#c9a96e',
+      lines: [
+        { initial: 'S', rest: 'iempre hay un instante en que los ojos se detienen y el ruido del mundo calla.' },
+        { initial: 'T', rest: 'ú eres ese instante, una calma que no pide permiso pero que lo inunda todo con su autenticidad.' },
+        { initial: 'C', rest: 'oincidir contigo es descubrir que la belleza de la vida no está en los grandes eventos,' },
+        { initial: 's', rest: 'ino en la tregua silenciosa que se genera cuando conversamos,' },
+        { initial: 'd', rest: 'onde el tiempo simplemente deja de correr.' },
+      ]
+    },
+    A1: {
+      color: '#e8c4b0',
+      lines: [
+        { initial: 'A', rest: ' veces la vida es tan compleja como un laberinto,' },
+        { initial: 'p', rest: 'ero tu presencia en mis días es la certeza a la que siempre da gusto volver.' },
+        { initial: 'E', rest: 'res ese rincón de luz y complicidad, un espacio donde las palabras no se gastan porque se dicen con el corazón.' },
+        { initial: 'A', rest: 'gradezco este tramo del camino compartido,' },
+        { initial: 'p', rest: 'orque tenerte cerca, incluso en el silencio, hace que todo sea más bonito.' },
+      ]
+    },
+    M: {
+      color: '#c47a6a',
+      lines: [
+        { initial: 'M', rest: 'e importa tu universo entero: tus risas que iluminan, tus metas y también esos días grises en los que las alas pesan un poco más.' },
+        { initial: 'Q', rest: 'uiero que lleves contigo la certeza absoluta de que,' },
+        { initial: 'n', rest: 'o importa cómo sople el viento o qué tan difícil se ponga el paisaje,' },
+        { initial: 'a', rest: 'quí vas a encontrar siempre un apoyo firme,' },
+        { initial: 'u', rest: 'n abrazo en forma de palabras y alguien que te quiere de verdad.' },
+      ]
+    },
+    A2: {
+      color: '#e8c4b0',
+      lines: [
+        { initial: 'A', rest: 'preciarte es como descubrir un poema que no sabías que necesitabas leer.' },
+        { initial: 'H', rest: 'e aprendido a querer tu forma de ser, esa madurez transparente' },
+        { initial: 'y', rest: ' la confianza que se teje entre los dos sin necesidad de forzar nada.' },
+        { initial: 'A', rest: 'unque la rutina a veces nos reclame,' },
+        { initial: 'e', rest: 'l espacio que ocupas en mis pensamientos permanece intacto, porque a las personas valiosas se las cuida con el alma.' },
+      ]
+    },
+    N: {
+      color: '#b0c4d8',
+      lines: [
+        { initial: 'N', rest: 'o existen las casualidades en el mapa del destino;' },
+        { initial: 'l', rest: 'as personas correctas llegan en el momento preciso.' },
+        { initial: 'T', rest: 'u presencia no es un accidente, es el resultado de una sintonía fina, de una lealtad que se demuestra sin ruidos.' },
+        { initial: 'E', rest: 'res esa persona que le aporta un sentido más profundo a la palabra amistad,' },
+        { initial: 'd', rest: 'ejando una marca imborrable simplemente por el hecho de ser tú.' },
+      ]
+    },
+    T: {
+      color: '#a8c4a2',
+      lines: [
+        { initial: 'T', rest: 'engo la seguridad de que los hilos que nos unen a las personas verdaderas' },
+        { initial: 'n', rest: 'o se cortan con la distancia ni se desgastan con el reloj.' },
+        { initial: 'S', rest: 'e alimentan de la complicidad, del respeto y de saber que,' },
+        { initial: 'e', rest: 'n algún lugar, hay alguien que nos piensa con bien.' },
+        { initial: 'E', rest: 'res un cable a tierra increíble, un punto firme en el que se puede confiar con los ojos cerrados.' },
+      ]
+    },
+    H: {
+      color: '#d4a8c7',
+      lines: [
+        { initial: 'H', rest: 'abitar los días sabiendo que existes es como encontrar un refugio de cristal en medio de la tormenta.' },
+        { initial: 'T', rest: 'ienes una fortaleza suave, una calidez que merece ser resguardada del frío del exterior.' },
+        { initial: 'N', rest: 'unca dudes de la huella que dejas en mí;' },
+        { initial: 'h', rest: 'ay personas que son un faro sin saberlo,' },
+        { initial: 'y', rest: ' tu esencia tiene esa luz única que disipa cualquier sombra.' },
+      ]
+    },
+    A3: {
+      color: '#e8c4b0',
+      lines: [
+        { initial: 'A', rest: 'l final, cuando la jornada termina y el silencio se adueña de la noche,' },
+        { initial: 'l', rest: 'o que queda es la gratitud por las almas que hacen que el viaje valga la pena.' },
+        { initial: 'T', rest: 'ú estás al principio de esa lista, Sam.' },
+        { initial: 'T', rest: 'e quiero muchísimo, y espero que este pequeño rincón sea un lugar al que vuelvas' },
+        { initial: 'c', rest: 'ada vez que necesites recordar lo sumamente especial que eres para mí.' },
+      ]
+    }
   };
 
   /* ============================================================
@@ -662,9 +1024,93 @@
   }
 
   /* ============================================================
+     PARTICLE SYSTEM
+  ============================================================ */
+  (function initParticles() {
+    const canvas = document.getElementById('particle-canvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+    let running = false;
+
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    function createParticle() {
+      return {
+        x: Math.random() * canvas.width,
+        y: canvas.height + 10,
+        vx: (Math.random() - 0.5) * 0.6,
+        vy: -(Math.random() * 0.8 + 0.3),
+        size: Math.random() * 2.5 + 0.5,
+        alpha: Math.random() * 0.5 + 0.2,
+        life: 0,
+        maxLife: Math.random() * 280 + 180,
+        color: Math.random() > 0.5 ? '201,169,110' : '232,196,176',
+      };
+    }
+
+    function tick() {
+      if (!running) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Spawn
+      if (Math.random() < 0.35) particles.push(createParticle());
+
+      particles = particles.filter(p => p.life < p.maxLife);
+      particles.forEach(p => {
+        p.x += p.vx + Math.sin(p.life * 0.02) * 0.3;
+        p.y += p.vy;
+        p.life++;
+        const progress = p.life / p.maxLife;
+        const alpha = p.alpha * (1 - progress * progress);
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${p.color},${alpha})`;
+        ctx.fill();
+      });
+
+      requestAnimationFrame(tick);
+    }
+
+    window.startParticles = function() {
+      running = true;
+      canvas.classList.add('active');
+      tick();
+    };
+    window.stopParticles = function() {
+      running = false;
+      canvas.classList.remove('active');
+    };
+  })();
+
+  /* ============================================================
+     BLOOM BURST on launch
+  ============================================================ */
+  function triggerBloom() {
+    const overlay = document.getElementById('bloom-overlay');
+    const sizes = [80, 140, 210, 300];
+    overlay.innerHTML = '';
+    sizes.forEach((s, i) => {
+      const ring = document.createElement('div');
+      ring.className = 'bloom-ring';
+      ring.style.cssText = `width:${s}px;height:${s}px;animation:bloomExpand ${0.9 + i*0.18}s ${i*0.12}s cubic-bezier(0.2,0.6,0.4,1) forwards;`;
+      overlay.appendChild(ring);
+    });
+    overlay.style.opacity = '1';
+    setTimeout(() => { overlay.style.opacity = '0'; overlay.innerHTML = ''; }, 1600);
+  }
+
+  /* ============================================================
      PHASE 2 LAUNCH
   ============================================================ */
   function launchPhase2() {
+    triggerBloom();
+    startParticles();
+
     // Fade out Phase 1
     const waitEl = document.getElementById('phase-wait');
     waitEl.classList.add('hidden');
@@ -928,14 +1374,38 @@
   }
 
   function openPoem(key) {
-    const poemKey = key === 'A1' || key === 'A2' || key === 'A3' ? key : key;
-    const poemText = acrosticPoems[poemKey] || acrosticPoems[key];
+    const poem = acrosticPoems[key];
     const overlay = document.getElementById('poem-overlay');
     const letterEl = document.getElementById('poem-letter');
     const textEl = document.getElementById('poem-text');
+    const modalEl = overlay.querySelector('.poem-modal');
+
+    // Set accent color
+    const color = poem ? poem.color : '#c9a96e';
+    modalEl.style.setProperty('--poem-accent', color);
 
     letterEl.textContent = key[0];
-    textEl.textContent = poemText || 'Este poema aún está en camino.';
+
+    // Build line-by-line acrostic HTML
+    textEl.innerHTML = '';
+    if (poem && poem.lines) {
+      const divider = document.createElement('div');
+      divider.className = 'poem-divider';
+      textEl.appendChild(divider);
+
+      poem.lines.forEach((line, i) => {
+        const lineEl = document.createElement('div');
+        lineEl.className = 'poem-acro-line';
+        lineEl.textContent = line.initial + line.rest;
+        textEl.appendChild(lineEl);
+
+        // Staggered reveal
+        setTimeout(() => lineEl.classList.add('reveal'), 380 + i * 140);
+      });
+    } else {
+      textEl.textContent = 'Este poema aún está en camino.';
+    }
+
     overlay.classList.add('active');
     overlay.focus();
   }
@@ -943,19 +1413,55 @@
   function closePoem() {
     const overlay = document.getElementById('poem-overlay');
     overlay.classList.remove('active');
+    // Reset reveal classes and signature after transition
+    setTimeout(() => {
+      overlay.querySelectorAll('.poem-acro-line').forEach(el => el.classList.remove('reveal'));
+      document.getElementById('sig-path').classList.remove('draw');
+    }, 500);
   }
 
   document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape') {
-      closePoem();
-    }
+    if (event.key === 'Escape') closePoem();
   });
 
   document.getElementById('poem-overlay').addEventListener('click', (event) => {
-    if (event.target === event.currentTarget) {
-      closePoem();
-    }
+    if (event.target === event.currentTarget) closePoem();
   });
+
+  /* ============================================================
+     CUSTOM CURSOR
+  ============================================================ */
+  (function initCursor() {
+    const el = document.getElementById('custom-cursor');
+    if (!el) return;
+    // Only activate on devices with a fine pointer (desktop/mouse)
+    if (!window.matchMedia('(pointer: fine)').matches) return;
+
+    let mouseX = -100, mouseY = -100;
+    let curX = -100, curY = -100;
+    let raf;
+
+    document.addEventListener('mousemove', (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+      el.classList.add('visible');
+    });
+
+    document.addEventListener('mouseleave', () => el.classList.remove('visible'));
+
+    document.addEventListener('mousedown', () => el.classList.add('clicking'));
+    document.addEventListener('mouseup',   () => el.classList.remove('clicking'));
+
+    function loop() {
+      // Smooth follow with lerp
+      curX += (mouseX - curX) * 0.18;
+      curY += (mouseY - curY) * 0.18;
+      el.style.left = curX + 'px';
+      el.style.top  = curY + 'px';
+      raf = requestAnimationFrame(loop);
+    }
+    loop();
+  })();
 
   /* ============================================================
      TAP / CLICK HANDLER
