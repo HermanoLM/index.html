@@ -714,9 +714,7 @@
     }
   }
 
-  /* ============================================================
-     POEM SIGNATURE LINE — drawn on close
-  ============================================================ */
+  /* Poem signature line */
   .poem-signature {
     display: block;
     margin: 1.4rem 0 0.4rem;
@@ -740,6 +738,171 @@
     transition: stroke-dashoffset 1.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
   .poem-signature path.draw { stroke-dashoffset: 0; }
+
+  /* Countdown natural language phrase */
+  .countdown-phrase {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: clamp(0.9rem, 3.5vw, 1.1rem);
+    color: var(--gold);
+    opacity: 0.75;
+    letter-spacing: 0.05em;
+    text-align: center;
+    margin-bottom: 1.2rem;
+    animation: fadeSlideUp 1.5s 0.3s ease both;
+    min-height: 1.4em;
+  }
+
+  /* Poem counter badge */
+  .poem-counter {
+    font-family: 'Raleway', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.25em;
+    color: var(--blush);
+    opacity: 0.6;
+    text-align: center;
+    margin-top: 0.5rem;
+    width: 100%;
+    transition: opacity 0.4s ease;
+  }
+  .poem-counter.all-done { opacity: 1; color: var(--gold); }
+
+  /* Replay button — small circle in corner */
+  .replay-btn {
+    position: fixed;
+    bottom: 1.4rem;
+    left: 1.4rem;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid rgba(232,196,176,0.25);
+    background: rgba(255,255,255,0.05);
+    color: var(--blush);
+    font-size: 0.95rem;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(6px);
+    transition: all 0.3s ease;
+    opacity: 1;
+    z-index: 30;
+  }
+  .replay-btn.show {
+    display: flex;
+  }
+  .replay-btn:hover {
+    border-color: rgba(201,169,110,0.5);
+    background: rgba(201,169,110,0.1);
+    color: var(--gold);
+    transform: scale(1.1);
+  }
+
+  /* Secret unlock button */
+  .secret-btn {
+    position: fixed;
+    bottom: 1.4rem;
+    right: 1.4rem;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid rgba(201,169,110,0.15);
+    background: rgba(255,255,255,0.04);
+    color: rgba(201,169,110,0.25);
+    font-size: 0.9rem;
+    cursor: default;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(6px);
+    transition: border-color 0.5s ease, color 0.5s ease, box-shadow 0.5s ease;
+    opacity: 1;
+    z-index: 30;
+  }
+  .secret-btn.show {
+    display: flex;
+  }
+  .secret-btn.unlocked {
+    border-color: rgba(201,169,110,0.7);
+    color: var(--gold);
+    cursor: pointer;
+    box-shadow: 0 0 14px rgba(201,169,110,0.25), 0 0 30px rgba(201,169,110,0.1);
+    animation: btnGlow 2.5s ease-in-out infinite alternate;
+  }
+  .secret-btn.unlocked:hover {
+    transform: scale(1.12) rotate(15deg);
+    box-shadow: 0 0 24px rgba(201,169,110,0.4);
+  }
+
+  /* Secret message modal */
+  .secret-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(8, 4, 2, 0);
+    backdrop-filter: blur(0px);
+    opacity: 0;
+    pointer-events: none;
+    transition: background 0.6s ease, backdrop-filter 0.6s ease, opacity 0.5s ease;
+  }
+  .secret-overlay.active {
+    opacity: 1;
+    pointer-events: all;
+    background: rgba(8, 4, 2, 0.92);
+    backdrop-filter: blur(12px);
+  }
+  .secret-box {
+    width: min(540px, 92vw);
+    text-align: center;
+    padding: 3rem 2rem;
+    transform: scale(0.85) translateY(30px);
+    opacity: 0;
+    transition: transform 0.7s cubic-bezier(0.34,1.56,0.64,1), opacity 0.5s ease;
+  }
+  .secret-overlay.active .secret-box {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+  .secret-star {
+    font-size: 2.5rem;
+    color: var(--gold);
+    text-shadow: 0 0 30px rgba(201,169,110,0.6), 0 0 60px rgba(201,169,110,0.3);
+    display: block;
+    margin-bottom: 1.2rem;
+    animation: candleFlicker 3s ease-in-out infinite alternate;
+  }
+  .secret-title {
+    font-family: 'Dancing Script', cursive;
+    font-size: clamp(1.6rem, 6vw, 2.4rem);
+    color: var(--gold);
+    margin-bottom: 1.4rem;
+    text-shadow: 0 0 20px rgba(201,169,110,0.4);
+  }
+  .secret-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1rem, 3.5vw, 1.2rem);
+    color: var(--cream);
+    line-height: 1.9;
+    font-style: italic;
+    opacity: 0.9;
+  }
+  .secret-close {
+    margin-top: 2rem;
+    font-family: 'Raleway', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.3em;
+    color: var(--blush);
+    opacity: 0.5;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: opacity 0.2s ease;
+  }
+  .secret-close:hover { opacity: 1; }
 </style>
 </head>
 <body>
@@ -775,6 +938,9 @@
 ==================================================== -->
 <div id="phase-wait">
   <p class="label-for">para Samantha</p>
+
+  <!-- Natural language countdown phrase -->
+  <p class="countdown-phrase" id="countdown-phrase"></p>
 
   <div class="clock-wrapper">
     <div class="clock-unit">
@@ -840,13 +1006,20 @@
     <button class="final-letter" type="button" data-key="T" onclick="openPoem('T')" style="--letter-color:#a8c4a2;--letter-glow:rgba(168,196,162,0.2);animation-delay:0.6s">T</button>
     <button class="final-letter" type="button" data-key="H" onclick="openPoem('H')" style="--letter-color:#d4a8c7;--letter-glow:rgba(212,168,199,0.2);animation-delay:0.7s">H</button>
     <button class="final-letter" type="button" data-key="A3" onclick="openPoem('A3')" style="--letter-color:#e8c4b0;--letter-glow:rgba(232,196,176,0.2);animation-delay:0.8s">A</button>
+    <div class="poem-counter" id="poem-counter">0 / 8 poemas leídos</div>
   </div>
+
+  <!-- Replay button — small circle bottom-left -->
+  <button class="replay-btn" id="replay-btn" type="button" onclick="replayMessages()" title="Volver a leer los mensajes">↩</button>
+
+  <!-- Secret button — bottom-right, unlocks when all poems read -->
+  <button class="secret-btn" id="secret-btn" type="button" title="Mensaje secreto" disabled>✦</button>
+
   <div class="poem-modal-overlay" id="poem-overlay" role="dialog" aria-modal="true" aria-labelledby="poem-letter" tabindex="-1">
     <div class="poem-modal">
       <button class="poem-close" id="poem-close" type="button" onclick="closePoem()">×</button>
       <p class="poem-letter" id="poem-letter"></p>
       <div class="poem-text" id="poem-text"></div>
-      <!-- Signature line drawn before closing -->
       <span class="poem-signature" id="poem-signature">
         <svg viewBox="0 0 300 20" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
           <path id="sig-path" d="M4,12 C20,4 40,18 65,10 C90,2 110,16 140,8 C170,0 195,16 225,9 C250,3 270,14 296,8"/>
@@ -856,13 +1029,31 @@
   </div>
 </div>
 
+<!-- Secret message modal (unlocked when all 8 poems read) -->
+<div class="secret-overlay" id="secret-overlay" tabindex="-1">
+  <div class="secret-box">
+    <span class="secret-star">✦</span>
+    <p class="secret-title">Solo para ti, Sam</p>
+    <p class="secret-text">
+      Llegaste al final de todo esto, y eso me dice algo de ti:<br>
+      que no te quedas a medias, que le das valor a las cosas que alguien<br>
+      construyó con cariño. Gracias por leer cada letra.<br><br>
+      Este espacio secreto es solo tuyo. Un lugar que existe<br>
+      porque me importa que sepas, con toda certeza,<br>
+      que eres una de las personas más especiales en mi vida.<br><br>
+      Te quiero, Samantha. Siempre.
+    </p>
+    <button class="secret-close" onclick="closeSecret()">cerrar ✦</button>
+  </div>
+</div>
+
 <script>
   /* ============================================================
      DEBUG MODE
      Cambiar a `true` para saltarse el contador y ver la Fase 2
      directamente. Recuerda ponerlo en `false` antes de enviárselo.
   ============================================================ */
-  const DEBUG_MODE = false;
+  const DEBUG_MODE =false;
 
   /* ============================================================
      TARGET DATE — 25 de agosto de este año a las 7:00 AM
@@ -981,6 +1172,30 @@
   let isAnimating   = false;
   let phase2Active  = false;
   let autoMemeInterval = null;
+  const poemsRead = new Set();
+  const TOTAL_POEMS = 8;
+  const POEM_KEYS   = ['S','A1','M','A2','N','T','H','A3'];
+
+  // Restore session state
+  (function restoreSession() {
+    try {
+      const saved = sessionStorage.getItem('sam_state');
+      if (!saved) return;
+      const state = JSON.parse(saved);
+      if (state.phase === 'end') {
+        // Will be triggered after launchPhase2 + showEnd flow
+        sessionStorage.setItem('sam_restore_end', '1');
+      } else if (state.phase === 'messages' && typeof state.index === 'number') {
+        sessionStorage.setItem('sam_restore_index', state.index);
+      }
+    } catch(e) {}
+  })();
+
+  function saveSession(phase, index) {
+    try {
+      sessionStorage.setItem('sam_state', JSON.stringify({ phase, index }));
+    } catch(e) {}
+  }
 
   /* ============================================================
      COUNTDOWN LOGIC
@@ -994,11 +1209,12 @@
     if (diff <= 0 || DEBUG_MODE) {
       clearInterval(clockInterval);
       document.getElementById('open-btn').classList.add('show');
-      // Hide the timer numbers if time reached
       if (diff <= 0) {
         ['cd-days','cd-hours','cd-mins','cd-secs'].forEach(id => {
           document.getElementById(id).textContent = '00';
         });
+        const phraseEl = document.getElementById('countdown-phrase');
+        if (phraseEl) phraseEl.textContent = '¡Tu día ha llegado, Samantha! ✦';
       }
       return;
     }
@@ -1013,6 +1229,18 @@
     document.getElementById('cd-hours').textContent = pad(hours);
     document.getElementById('cd-mins').textContent  = pad(mins);
     document.getElementById('cd-secs').textContent  = pad(secs);
+
+    // Natural language phrase
+    const phraseEl = document.getElementById('countdown-phrase');
+    if (phraseEl) {
+      const parts = [];
+      if (days  > 0) parts.push(`${days} ${days  === 1 ? 'día'    : 'días'}`);
+      if (hours > 0) parts.push(`${hours} ${hours === 1 ? 'hora'   : 'horas'}`);
+      if (mins  > 0) parts.push(`${mins} ${mins   === 1 ? 'minuto' : 'minutos'}`);
+      if (days === 0 && hours === 0 && mins === 0)
+        parts.push(`${secs} ${secs === 1 ? 'segundo' : 'segundos'}`);
+      phraseEl.textContent = `faltan ${parts.join(', ')} para tu día ✦`;
+    }
   }
 
   const clockInterval = setInterval(updateClock, 1000);
@@ -1170,6 +1398,9 @@
       else showEnd();
       return;
     }
+
+    // Save progress to sessionStorage
+    saveSession('messages', currentIndex + 1);
 
     const nextMsg = messages[currentIndex + 1];
 
@@ -1358,19 +1589,81 @@
 
     msgEl.style.opacity  = '0';
     dotsEl.style.opacity = '0';
-    
-    // Cambiar al fondo 2 y activar pulso de brillo
+
     bgEl.classList.remove('message-bg');
     bgEl.classList.add('end-bg');
     overlayEl.classList.add('glow');
 
     phase2Active = false;
+    saveSession('end', null);
 
     setTimeout(() => {
       msgEl.style.display  = 'none';
       dotsEl.style.display = 'none';
       endEl.classList.add('active');
+      // Show corner buttons
+      document.getElementById('replay-btn').classList.add('show');
+      document.getElementById('secret-btn').classList.add('show');
+      updatePoemCounter();
     }, 1200);
+  }
+
+  /* ---- Poem counter & secret unlock ---- */
+  function updatePoemCounter() {
+    const counter   = document.getElementById('poem-counter');
+    const secretBtn = document.getElementById('secret-btn');
+    if (!counter) return;
+    const n = poemsRead.size;
+    if (n === TOTAL_POEMS) {
+      counter.textContent = '✦ leíste todos los poemas ✦';
+      counter.classList.add('all-done');
+      // Unlock the secret button
+      if (secretBtn) {
+        secretBtn.classList.add('unlocked');
+        secretBtn.disabled = false;
+        secretBtn.onclick  = openSecret;
+      }
+    } else {
+      counter.textContent = `${n} / ${TOTAL_POEMS} poemas leídos`;
+      counter.classList.remove('all-done');
+    }
+  }
+
+  function openSecret() {
+    const overlay = document.getElementById('secret-overlay');
+    overlay.classList.add('active');
+    overlay.focus();
+  }
+
+  function closeSecret() {
+    document.getElementById('secret-overlay').classList.remove('active');
+  }
+
+  /* ---- Replay messages ---- */
+  function replayMessages() {
+    const endEl  = document.getElementById('end-screen');
+    const msgEl  = document.getElementById('phase-msg');
+    const dotsEl = document.getElementById('progress-dots');
+    const bgEl   = document.querySelector('.bg-layer');
+
+    // Reset to message phase visuals
+    endEl.classList.remove('active');
+    bgEl.classList.remove('end-bg');
+    bgEl.classList.add('message-bg');
+    document.querySelector('.bg-overlay').classList.remove('glow');
+
+    msgEl.style.display = '';
+    msgEl.style.opacity = '1';
+    dotsEl.style.display = '';
+    dotsEl.style.opacity = '1';
+
+    // Reset message index and dots
+    currentIndex = -1;
+    document.querySelectorAll('.dot').forEach(d => d.classList.remove('active','done'));
+
+    phase2Active = true;
+    saveSession('messages', 0);
+    showNext();
   }
 
   function openPoem(key) {
@@ -1385,6 +1678,10 @@
     modalEl.style.setProperty('--poem-accent', color);
 
     letterEl.textContent = key[0];
+
+    // Reset signature
+    const sigPath = document.getElementById('sig-path');
+    sigPath.classList.remove('draw');
 
     // Build line-by-line acrostic HTML
     textEl.innerHTML = '';
@@ -1402,12 +1699,21 @@
         // Staggered reveal
         setTimeout(() => lineEl.classList.add('reveal'), 380 + i * 140);
       });
+
+      // Draw signature after all lines have appeared
+      const totalDelay = 380 + poem.lines.length * 140 + 200;
+      setTimeout(() => sigPath.classList.add('draw'), totalDelay);
     } else {
       textEl.textContent = 'Este poema aún está en camino.';
+      setTimeout(() => sigPath.classList.add('draw'), 600);
     }
 
     overlay.classList.add('active');
     overlay.focus();
+
+    // Track read & update counter
+    poemsRead.add(key);
+    updatePoemCounter();
   }
 
   function closePoem() {
@@ -1421,11 +1727,25 @@
   }
 
   document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape') closePoem();
+    if (event.key === 'Escape') {
+      closePoem();
+      closeSecret();
+    }
+  });
+
+  // Save state when user hides/closes the tab
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      if (phase2Active) saveSession('messages', currentIndex);
+    }
   });
 
   document.getElementById('poem-overlay').addEventListener('click', (event) => {
     if (event.target === event.currentTarget) closePoem();
+  });
+
+  document.getElementById('secret-overlay').addEventListener('click', (event) => {
+    if (event.target === event.currentTarget) closeSecret();
   });
 
   /* ============================================================
