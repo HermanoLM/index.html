@@ -4,6 +4,34 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
 <title>para Samantha</title>
+
+  <!-- Open Graph — WhatsApp, iMessage, Facebook, Telegram -->
+  <meta property="og:type"        content="website">
+  <meta property="og:url"         content="https://hermanolm.github.io/Para-Samantha">
+  <meta property="og:title"       content="para Samantha ✦">
+  <meta property="og:description" content="Algo hecho con mucho cariño, solo para ti.">
+  <meta property="og:image"       content="https://hermanolm.github.io/Para-Samantha/fondo2.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:locale"      content="es_HN">
+
+  <!-- Twitter / X -->
+  <meta name="twitter:card"        content="summary_large_image">
+  <meta name="twitter:title"       content="para Samantha ✦">
+  <meta name="twitter:description" content="Algo hecho con mucho cariño, solo para ti.">
+  <meta name="twitter:image"       content="https://hermanolm.github.io/Para-Samantha/fondo2.png">
+
+  <!-- General -->
+  <meta name="description" content="Algo hecho con mucho cariño, solo para ti.">
+  <meta name="theme-color" content="#1a0f0b">
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Fidelis">
+  <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Dancing+Script:wght@400;500&family=Raleway:wght@200;300;400&display=swap" rel="stylesheet">
 <style>
@@ -2108,6 +2136,14 @@
       showNext();
     }
   }, { passive: false });
+  // Register service worker for PWA
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/Para-Samantha/sw.js')
+        .catch(() => {}); // fail silently
+    });
+  }
+
 </script>
 </body>
 </html>
