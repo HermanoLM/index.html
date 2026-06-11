@@ -1,0 +1,25 @@
+{
+  "name": "Fidelis",
+  "short_name": "Fidelis",
+  "description": "Un regalo hecho con mucho cariño.",
+  "start_url": "/Para-Samantha/",
+  "scope": "/Para-Samantha/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#87CEEB",
+  "theme_color": "#87CEEB",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
