@@ -1071,6 +1071,140 @@
     opacity: 0.9;
     margin-bottom: 1.2rem;
   }
+
+  /* ============================================================
+     BUZÓN DE RESPUESTAS
+  ============================================================ */
+  .buzon-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 55;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(8, 4, 2, 0);
+    backdrop-filter: blur(0px);
+    opacity: 0;
+    pointer-events: none;
+    transition: background 0.7s ease, backdrop-filter 0.7s ease, opacity 0.5s ease;
+  }
+  .buzon-overlay.active {
+    opacity: 1;
+    pointer-events: all;
+    background: rgba(8, 4, 2, 0.96);
+    backdrop-filter: blur(2px);
+  }
+  .buzon-box {
+    width: min(520px, 92vw);
+    padding: 2.4rem 2rem 2rem;
+    text-align: center;
+    transform: translateY(30px);
+    opacity: 0;
+    transition: transform 0.6s cubic-bezier(0.34,1.56,0.64,1), opacity 0.5s ease;
+  }
+  .buzon-overlay.active .buzon-box {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  .buzon-icon {
+    font-size: 2rem;
+    display: block;
+    margin-bottom: 1rem;
+    opacity: 0.6;
+  }
+  .buzon-prompt {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: clamp(1rem, 3.5vw, 1.15rem);
+    color: var(--cream);
+    line-height: 1.8;
+    opacity: 0.85;
+    margin-bottom: 1.6rem;
+  }
+  .buzon-textarea {
+    width: 100%;
+    min-height: 140px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(201,169,110,0.2);
+    border-radius: 3px;
+    padding: 1rem;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(0.95rem, 3vw, 1.05rem);
+    color: var(--cream);
+    line-height: 1.7;
+    resize: none;
+    outline: none;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    caret-color: var(--gold);
+  }
+  .buzon-textarea::placeholder {
+    color: rgba(245,239,230,0.25);
+    font-style: italic;
+  }
+  .buzon-textarea:focus {
+    border-color: rgba(201,169,110,0.45);
+    box-shadow: 0 0 20px rgba(201,169,110,0.08);
+  }
+  .buzon-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 1.2rem;
+  }
+  .buzon-save {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 1rem;
+    color: var(--deep);
+    background: var(--gold);
+    border: none;
+    padding: 0.6rem 2rem;
+    border-radius: 2px;
+    cursor: pointer;
+    letter-spacing: 0.08em;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .buzon-save:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(201,169,110,0.3);
+  }
+  .buzon-skip {
+    font-family: 'Raleway', sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.25em;
+    color: var(--blush);
+    opacity: 0.45;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: opacity 0.2s ease;
+    align-self: center;
+  }
+  .buzon-skip:hover { opacity: 0.8; }
+  .buzon-saved-label {
+    font-family: 'Raleway', sans-serif;
+    font-size: 0.68rem;
+    letter-spacing: 0.25em;
+    color: var(--gold);
+    text-transform: uppercase;
+    opacity: 0.5;
+    margin-bottom: 0.6rem;
+    display: block;
+  }
+  .buzon-saved-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: clamp(0.95rem, 3vw, 1.1rem);
+    color: var(--cream);
+    line-height: 1.8;
+    opacity: 0.85;
+    text-align: left;
+    padding: 1rem;
+    border-left: 1px solid rgba(201,169,110,0.3);
+    margin-bottom: 1.2rem;
+  }
+
   /* ============================================================
      REST MODE — dimmed countdown after 3 min of inactivity
   ============================================================ */
@@ -1144,7 +1278,144 @@
     transition: width 0.15s linear;
     box-shadow: 0 0 6px rgba(201,169,110,0.4);
   }
-</style>
+
+  /* ============================================================
+     MOON TRIGGER — easter egg casi invisible en el contador
+  ============================================================ */
+  #moon-trigger {
+    position: absolute;
+    top: 2.8rem;
+    right: 2.8rem;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: rgba(180,190,215,0.05);
+    border: 1px solid rgba(180,190,215,0.06);
+    cursor: pointer;
+    z-index: 12;
+    transition: background 0.5s ease, border-color 0.5s ease;
+  }
+  #moon-trigger:hover {
+    background: rgba(180,190,215,0.12);
+    border-color: rgba(180,190,215,0.16);
+  }
+
+  /* ============================================================
+     SISTEMA SOLAR
+  ============================================================ */
+  .solar-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    background: #04020e;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.8s ease;
+  }
+  .solar-overlay.active { opacity: 1; pointer-events: all; }
+
+  /* Starfield via CSS */
+  .solar-overlay::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      radial-gradient(1px 1px at 8%  15%, rgba(255,255,255,0.7) 0%, transparent 100%),
+      radial-gradient(1px 1px at 22% 68%, rgba(255,255,255,0.5) 0%, transparent 100%),
+      radial-gradient(1px 1px at 35% 28%, rgba(255,255,255,0.6) 0%, transparent 100%),
+      radial-gradient(1px 1px at 48% 82%, rgba(255,255,255,0.4) 0%, transparent 100%),
+      radial-gradient(1px 1px at 61% 12%, rgba(255,255,255,0.7) 0%, transparent 100%),
+      radial-gradient(1px 1px at 74% 55%, rgba(255,255,255,0.5) 0%, transparent 100%),
+      radial-gradient(1px 1px at 87% 35%, rgba(255,255,255,0.6) 0%, transparent 100%),
+      radial-gradient(1px 1px at 93% 78%, rgba(255,255,255,0.4) 0%, transparent 100%),
+      radial-gradient(1px 1px at 15% 42%, rgba(255,255,255,0.5) 0%, transparent 100%),
+      radial-gradient(1px 1px at 29% 88%, rgba(255,255,255,0.6) 0%, transparent 100%),
+      radial-gradient(1px 1px at 54% 48%, rgba(255,255,255,0.4) 0%, transparent 100%),
+      radial-gradient(1px 1px at 68% 92%, rgba(255,255,255,0.7) 0%, transparent 100%),
+      radial-gradient(1px 1px at 82% 18%, rgba(255,255,255,0.5) 0%, transparent 100%),
+      radial-gradient(1px 1px at 5%  72%, rgba(255,255,255,0.6) 0%, transparent 100%),
+      radial-gradient(1px 1px at 40% 5%,  rgba(255,255,255,0.4) 0%, transparent 100%);
+    pointer-events: none;
+  }
+
+  #solar-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .solar-close {
+    position: absolute;
+    top: 1.4rem; right: 1.4rem;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.04);
+    color: rgba(255,255,255,0.4);
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease, color 0.2s ease;
+    z-index: 5;
+  }
+  .solar-close:hover { background: rgba(255,255,255,0.1); color: white; }
+
+  .planet-card {
+    position: absolute;
+    bottom: 2.5rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    width: min(400px, 88vw);
+    background: rgba(6, 3, 18, 0.95);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 3px;
+    padding: 1.4rem 1.6rem;
+    text-align: center;
+    opacity: 0;
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    pointer-events: none;
+    z-index: 5;
+  }
+  .planet-card.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+    pointer-events: all;
+  }
+  .planet-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 2rem; right: 2rem;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--planet-color, var(--gold)), transparent);
+    opacity: 0.5;
+  }
+  .planet-card-name {
+    font-family: 'Dancing Script', cursive;
+    font-size: clamp(1.4rem, 5vw, 1.9rem);
+    color: var(--planet-color, var(--gold));
+    margin-bottom: 0.6rem;
+    text-shadow: 0 0 20px var(--planet-color, var(--gold));
+  }
+  .planet-card-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: clamp(0.9rem, 3vw, 1.05rem);
+    color: var(--cream);
+    line-height: 1.85;
+    opacity: 0.85;
+  }
+  .planet-card-hint {
+    font-family: 'Raleway', sans-serif;
+    font-size: 0.58rem;
+    letter-spacing: 0.25em;
+    color: rgba(255,255,255,0.2);
+    text-transform: uppercase;
+    margin-top: 1rem;
+  }
+
 </style>
 </head>
 <body>
@@ -1165,9 +1436,25 @@
 
 <!-- Custom cursor -->
 <!-- ====================================================
+     SISTEMA SOLAR — easter egg
+==================================================== -->
+<div class="solar-overlay" id="solar-overlay" tabindex="-1">
+  <button class="solar-close" onclick="closeSolarSystem()">×</button>
+  <canvas id="solar-canvas"></canvas>
+  <div class="planet-card" id="planet-card">
+    <p class="planet-card-name" id="planet-name"></p>
+    <p class="planet-card-text" id="planet-text"></p>
+    <p class="planet-card-hint">toca otro planeta para explorar</p>
+  </div>
+</div>
+
+<!-- ====================================================
      PHASE 1 — COUNTDOWN
 ==================================================== -->
 <div id="phase-wait">
+
+  <!-- Hidden moon easter egg -->
+  <button id="moon-trigger" onclick="openSolarSystem()" aria-label="luna"></button>
 
   <!-- Corner ornaments -->
   <span class="corner corner-tl"></span>
@@ -1272,7 +1559,7 @@
     <span class="secret-star">✦</span>
     <p class="secret-title">Leíste todo. Gracias.</p>
     <p class="secret-text">
-      Que hayas llegado hasta aquí dice algo bonito de ti: le das valor a lo que alguien construyó con cariño. Este último rincón es solo tuyo.
+      Si vis amari, ama; et in amando vive.
     </p>
     <div class="secret-divider"></div>
     <div class="secret-long-text" id="secret-long-text">
@@ -1295,12 +1582,12 @@
      Cambiar a `true` para saltarse el contador y ver la Fase 2
      directamente. Recuerda ponerlo en `false` antes de enviárselo.
   ============================================================ */
-  const DEBUG_MODE = false;
+  const DEBUG_MODE = true;
 
   /* ============================================================
      TARGET DATE — 25 de agosto de este año a las 7:00 AM
   ============================================================ */
-  const TARGET = new Date(new Date().getFullYear(), 7, 25, 7, 0, 0); // Mes 7 = agosto
+  const TARGET = new Date(new Date().getFullYear(), 7, 25, 0, 0, 0); // Mes 7 = agosto
 
   /* ============================================================
      MESSAGES — Cada tap avanza un elemento de este arreglo
@@ -1308,8 +1595,8 @@
   const messages = [
     // ── Apertura ─────────────────────────────────────────────────
     { text: "Sam", style: "msg-swift" },
-    { text: "Hay presencias que no necesitan anunciarse con estridencia.", style: "" },
-    { text: "Llegan como el sol de la tarde, transformando el paisaje de manera silenciosa pero absoluta.", style: "" },
+    { text: "Hay presencias que no necesitan anunciarse con estridencia;", style: "" },
+    { text: "llegan como el sol de la tarde, transformando el paisaje de manera silenciosa pero absoluta.", style: "" },
 
     // ── Disculpa ──────────────────────────────────────────────────
     { text: "Sé que las agujas del reloj han girado con demasiada prisa últimamente.", style: "" },
@@ -1319,27 +1606,26 @@
     { text: "Tu risa, tu manera tan honesta de sostener la mirada cuando escuchas y la firmeza de tu carácter se quedaron resguardadas aquí.", style: "" },
 
     // ── Admiración ───────────────────────────────────────────────
-    { text: "Hay en ti una hermosa ebanistería interna.", style: "" },
+    { text: "Hay en ti una hermosa arquitectura interna.", style: "" },
     { text: "Una insistencia inquebrantable por buscar la luz y orientarte hacia ella, incluso cuando el cielo insiste en llenarse de nubes.", style: "" },
-    { text: "Admiro cómo te preocupas por lo que amas, la madurez con la que defiendes tus verdades.", style: "" },
-    { text: "Y esa virtud tan tuya de restarle peso al mundo, haciéndolo un lugar más liviano y habitable con el simple hecho de existir en él.", style: "" },
+    { text: "Admiro profundamente cómo te preocupas por lo que amas, la madurez con la que defiendes tus verdades.", style: "" },
+    { text: "Y esa virtud tan tuya de restarle peso a la vida de los demás, haciéndola un lugar más liviano y habitable con el simple hecho de existir en él.", style: "" },
 
     // ── Gratitud ─────────────────────────────────────────────────
     { text: "Quizás mis palabras no siempre alcancen a rozar la superficie de lo que siento.", style: "" },
     { text: "Pero en el inventario de mis recuerdos más puros y felices, tu nombre ocupa un espacio central.", style: "" },
     { text: "Encontrar una amistad tan cálida, desinteresada y real es un hallazgo que atesoro en silencio.", style: "" },
     { text: "Te quiero muchísimo, Sam.", style: "msg-swift" },
-    { text: "Y mi deseo más profundo es que tus anhelos sigan esa misma inercia del girasol: que crezcan altos, firmes y siempre apuntando hacia horizontes mejores.", style: "" },
+    { text: "Y mi deseo más profundo en este día es que tus anhelos sigan esa misma inercia del girasol: que crezcan altos, firmes y siempre apuntando hacia horizontes mejores.", style: "" },
 
     // ── Cierre ───────────────────────────────────────────────────
-    { text: "Hoy elijo detener el tiempo y las prisas cotidianas para darte las gracias.", style: "" },
+    { text: "Hoy elijo detener el tiempo y las prisas cotidianas para celebrar tu vida.", style: "" },
     { text: "Gracias por la tregua de tu compañía, por los instantes compartidos y por otorgarme el privilegio de estar cerca de tu luz.", style: "" },
     { text: "No pretendo disputar un lugar en la lista de tus personas favoritas.", style: "" },
-    { text: "Pero sí asumo el pacto consciente de ser de los pocos que jamás te van a fallar.", style: "" },
+    { text: "Pero sí asumo el pacto consciente de ser uno de los pocos que jamás te van a fallar.", style: "" },
     { text: "Cuando los días se tornen volátiles, cuando el entorno pese y el ruido exterior te abrume, búscame.", style: "" },
-    { text: "No habrá interrogatorios incómodos, ni condiciones que cumplir.", style: "" },
-    { text: "Solo un silencio compartido y la certeza absoluta de que me encontrarás siempre en el mismo sitio:", style: "" },
-    { text: "el lado donde el sol vuelve a salir para ti.", style: "msg-swift" },
+    { text: "No te aseguro solucionar tus problemas, pero te doy la certeza absoluta de que me encontrarás siempre que me necesites.", style: "" },
+    { text: "\"el lado donde el sol vuelve a salir para ti\".", style: "msg-swift" },
     { text: "Feliz cumpleaños, Samantha. Gracias por ser tú.", style: "msg-swift" },
   ];
 
@@ -1938,6 +2224,60 @@
 
   function closeSecret() {
     DOM.secretOverlay.classList.remove('active');
+    // Open buzón after secret closes
+    setTimeout(openBuzon, 600);
+  }
+
+  /* ============================================================
+     BUZÓN DE RESPUESTAS
+  ============================================================ */
+  function openBuzon() {
+    const overlay  = document.getElementById('buzon-overlay');
+    const textarea = document.getElementById('buzon-textarea');
+    const savedArea = document.getElementById('buzon-saved-area');
+    const prompt   = document.getElementById('buzon-prompt');
+
+    // Check if already has a saved response
+    const saved = localStorage.getItem('sam_buzon');
+    savedArea.innerHTML = '';
+
+    if (saved) {
+      // Show existing response and allow editing
+      prompt.innerHTML = 'Ya guardaste algo aquí. Puedes editarlo cuando quieras.';
+      const label = document.createElement('span');
+      label.className = 'buzon-saved-label';
+      label.textContent = 'lo que escribiste';
+      const text = document.createElement('div');
+      text.className = 'buzon-saved-text';
+      text.textContent = saved;
+      savedArea.appendChild(label);
+      savedArea.appendChild(text);
+      textarea.value = saved;
+    } else {
+      prompt.innerHTML = 'Preparé este espacio para que pudieras escribir algo,<br>y así poder ver lo que pensaste.';
+      textarea.value = '';
+    }
+
+    overlay.classList.add('active');
+    setTimeout(() => textarea.focus(), 700);
+  }
+
+  function saveBuzon() {
+    const textarea = document.getElementById('buzon-textarea');
+    const text = textarea.value.trim();
+    if (!text) { closeBuzon(); return; }
+
+    try { localStorage.setItem('sam_buzon', text); } catch(e) {}
+
+    // Brief confirmation flash on the button
+    const btn = document.querySelector('.buzon-save');
+    btn.textContent = 'guardado ✦';
+    btn.style.background = 'rgba(201,169,110,0.4)';
+    setTimeout(() => closeBuzon(), 1000);
+  }
+
+  function closeBuzon() {
+    document.getElementById('buzon-overlay').classList.remove('active');
   }
 
   /* ---- Replay messages ---- */
@@ -2014,7 +2354,7 @@
   }
 
   document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape') { closePoem(); closeSecret(); }
+    if (event.key === 'Escape') { closePoem(); closeSecret(); closeSolarSystem(); }
   });
 
   document.addEventListener('visibilitychange', () => {
@@ -2136,6 +2476,177 @@
       showNext();
     }
   }, { passive: false });
+  /* ============================================================
+     SISTEMA SOLAR — easter egg
+  ============================================================ */
+  const sunData = {
+    name: 'Gravedad',
+    text: 'Toda órbita necesita un centro, una fuerza invisible que ordene el caos sin alterarlo.',
+    color: '#ffe864',
+  };
+
+  const planets = [
+    { name: 'Colisión',        text: 'En el vacío, los encuentros inesperados transforman el paisaje para siempre. Coincidir no es un accidente de la trayectoria, sino el nacimiento de una sintonía brillante que reescribe las constelaciones conocidas, demostrando que de un impacto suave puede nacer una luz completamente nueva.', color: '#c9a96e', radius: 7,  orbit: 65,  speed: 0.010  },
+    { name: 'Atmósfera',       text: 'Donde el entorno se vuelve frío y el ruido del exterior intenta abrumar, existe una capa protectora donde el aire es más limpio. Una tregua cálida y suspendida en el tiempo, un refugio donde es posible respirar con calma y descansar de las tormentas del resto del universo.', color: '#e8c4b0', radius: 5,  orbit: 95,  speed: 0.007  },
+    { name: 'Rotación',        text: 'Cada quien gira sobre su propio eje, cargando sus días difíciles, sus nubes y sus propias tormentas en silencio. Pero el viaje se vuelve mucho más ligero cuando sabes que, en algún punto del camino, te vas a cruzar con alguien que te entiende sin juzgarte.', color: '#c47a6a', radius: 9,  orbit: 128, speed: 0.005  },
+    { name: 'Frecuencias',     text: 'Dicen que en el espacio no viaja el sonido, pero yo creo que existen frecuencias silenciosas que solo se sintonizan cuando hay una confianza real. Aquí guardo las palabras que casi nunca digo en voz alta, sabiendo que contigo están seguras.', color: '#b0c4d8', radius: 6,  orbit: 162, speed: 0.0038 },
+    { name: 'Eclipse',         text: 'Incluso los astros más luminosos pasan por momentos donde la sombra los cubre por completo. No le temas a esos días grises ni a tus propios refugios en crisis; la luz siempre vuelve a encontrar su camino, y yo estaré aquí para recordártelo.', color: '#a8c4a2', radius: 8,  orbit: 198, speed: 0.0028 },
+    { name: 'Polvo de estrellas', text: 'Mundos enteros se construyen a partir de partículas diminutas que parecen no tener valor. De la misma forma, la complicidad se sostiene a través de lo invisible: en el hábito de notar las sutilezas, en el respeto a las rarezas compartidas y en la constancia de esos instantes cotidianos que, al unirse, terminan trazando una coordenada inalterable que el tiempo no ha de borrar.', color: '#d4a8c7', radius: 5,  orbit: 232, speed: 0.0022 },
+    { name: 'Expansión',       text: 'Aunque el universo siga expandiéndose y el tiempo nos lleve por caminos diferentes o rumbos desconocidos, hay sintonías que no dependen de la distancia. Mi admiración y mi cariño por ti no tienen fecha de caducidad.', color: '#f0d080', radius: 10, orbit: 268, speed: 0.0017 },
+    { name: 'Punto de retorno', text: 'No importa qué tan lejos te lleven tus horizontes, ni qué tan volátil se vuelva el entorno afuera. Al final de la órbita más larga, siempre habrá un puerto seguro donde el sol vuelve a salir para ti.', color: '#9ab0d0', radius: 6,  orbit: 305, speed: 0.0013 },
+  ];
+
+  let solarAngles    = planets.map((_, i) => (i / planets.length) * Math.PI * 2);
+  let solarRAF       = null;
+  let selectedPlanet = null;
+  let solarPaused    = false;
+  let solarCanvas    = null;
+  let solarCtx       = null;
+
+  function openSolarSystem() {
+    const overlay = document.getElementById('solar-overlay');
+    overlay.classList.add('active');
+    overlay.focus();
+    initSolarCanvas();
+  }
+
+  function closeSolarSystem() {
+    const overlay = document.getElementById('solar-overlay');
+    overlay.classList.remove('active');
+    document.getElementById('planet-card').classList.remove('show');
+    if (solarRAF) { cancelAnimationFrame(solarRAF); solarRAF = null; }
+    selectedPlanet = null;
+    solarPaused    = false;
+  }
+
+  function initSolarCanvas() {
+    solarCanvas = document.getElementById('solar-canvas');
+    solarCtx    = solarCanvas.getContext('2d');
+
+    function resize() {
+      solarCanvas.width  = window.innerWidth;
+      solarCanvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    function cx() { return solarCanvas.width  / 2; }
+    function cy() { return solarCanvas.height / 2; }
+
+    function drawFrame() {
+      solarCtx.clearRect(0, 0, solarCanvas.width, solarCanvas.height);
+
+      // Sun glow
+      const sunGrad = solarCtx.createRadialGradient(cx(), cy(), 0, cx(), cy(), 36);
+      sunGrad.addColorStop(0,   'rgba(255,228,100,1)');
+      sunGrad.addColorStop(0.4, 'rgba(220,160,50,0.85)');
+      sunGrad.addColorStop(1,   'rgba(180,90,20,0)');
+      solarCtx.beginPath();
+      solarCtx.arc(cx(), cy(), 36, 0, Math.PI * 2);
+      solarCtx.fillStyle = sunGrad;
+      solarCtx.fill();
+
+      // Inner sun
+      solarCtx.beginPath();
+      solarCtx.arc(cx(), cy(), 16, 0, Math.PI * 2);
+      solarCtx.fillStyle = 'rgba(255,240,160,0.95)';
+      solarCtx.fill();
+
+      planets.forEach((p, i) => {
+        // Orbit ring
+        solarCtx.beginPath();
+        solarCtx.arc(cx(), cy(), p.orbit, 0, Math.PI * 2);
+        solarCtx.strokeStyle = 'rgba(255,255,255,0.04)';
+        solarCtx.lineWidth   = 1;
+        solarCtx.stroke();
+
+        // Advance angle unless this planet is selected
+        if (!solarPaused || selectedPlanet !== i) solarAngles[i] += p.speed;
+
+        const px = cx() + Math.cos(solarAngles[i]) * p.orbit;
+        const py = cy() + Math.sin(solarAngles[i]) * p.orbit;
+
+        // Glow
+        const glow = solarCtx.createRadialGradient(px, py, 0, px, py, p.radius * 2.8);
+        glow.addColorStop(0,   p.color + 'bb');
+        glow.addColorStop(1,   p.color + '00');
+        solarCtx.beginPath();
+        solarCtx.arc(px, py, p.radius * 2.8, 0, Math.PI * 2);
+        solarCtx.fillStyle = glow;
+        solarCtx.fill();
+
+        // Planet body
+        solarCtx.beginPath();
+        solarCtx.arc(px, py, p.radius, 0, Math.PI * 2);
+        solarCtx.fillStyle = p.color;
+        solarCtx.fill();
+
+        // Selection ring
+        if (selectedPlanet === i) {
+          solarCtx.beginPath();
+          solarCtx.arc(px, py, p.radius + 5, 0, Math.PI * 2);
+          solarCtx.strokeStyle = p.color;
+          solarCtx.lineWidth   = 1;
+          solarCtx.globalAlpha = 0.55;
+          solarCtx.stroke();
+          solarCtx.globalAlpha = 1;
+        }
+
+        // Store position for hit detection
+        p._px = px; p._py = py;
+      });
+
+      solarRAF = requestAnimationFrame(drawFrame);
+    }
+
+    if (solarRAF) cancelAnimationFrame(solarRAF);
+    drawFrame();
+
+    // Click / tap handler
+    solarCanvas.onclick = (e) => {
+      const rect = solarCanvas.getBoundingClientRect();
+      const mx   = e.clientX - rect.left;
+      const my   = e.clientY - rect.top;
+      let   hit  = null;
+
+      // Check sun first
+      const dxSun = mx - cx(), dySun = my - cy();
+      const hitSun = Math.sqrt(dxSun*dxSun + dySun*dySun) < 36;
+
+      if (hitSun) {
+        selectedPlanet = -1;
+        solarPaused    = true;
+        document.getElementById('planet-name').textContent = sunData.name;
+        document.getElementById('planet-text').textContent = sunData.text;
+        const card = document.getElementById('planet-card');
+        card.style.setProperty('--planet-color', sunData.color);
+        card.classList.add('show');
+        if (navigator.vibrate) navigator.vibrate(18);
+        return;
+      }
+
+      planets.forEach((p, i) => {
+        const dx = mx - p._px, dy = my - p._py;
+        if (Math.sqrt(dx*dx + dy*dy) < p.radius + 12) hit = i;
+      });
+
+      const card = document.getElementById('planet-card');
+      if (hit !== null) {
+        selectedPlanet = hit;
+        solarPaused    = true;
+        document.getElementById('planet-name').textContent = planets[hit].name;
+        document.getElementById('planet-text').textContent = planets[hit].text;
+        card.style.setProperty('--planet-color', planets[hit].color);
+        card.classList.add('show');
+        if (navigator.vibrate) navigator.vibrate(18);
+      } else {
+        selectedPlanet = null;
+        solarPaused    = false;
+        card.classList.remove('show');
+      }
+    };
+  }
+
   // Register service worker for PWA
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
