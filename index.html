@@ -1149,7 +1149,6 @@
     box-shadow: 0 0 6px rgba(201,169,110,0.4);
   }
 </style>
-</style>
 </head>
 <body>
 
@@ -1166,8 +1165,6 @@
     <circle cx="0" cy="0" r="1.5" fill="#0d0806"/>
   </svg>
 </div>
-
-<!-- Custom cursor -->
 
 <!-- ====================================================
      PHASE 1 — COUNTDOWN
@@ -1300,6 +1297,9 @@
   </div>
 </div>
 
+<!-- Audio de la carta final (suena solo dentro del mensaje secreto) -->
+<audio id="secret-audio" src="Sweet.mp3" preload="none" loop></audio>
+
 <script>
   /* ============================================================
      DEBUG MODE
@@ -1408,7 +1408,7 @@
         { initial: 'L', rest: 'a lealtad real no impone condiciones ni exige roles, simplemente sostiene.' },
         { initial: 'T', rest: 'u compañía me recuerda que, aun en los días más densos, existe una fuerza serena que mantiene el rumbo firme.' },
         { initial: 'E', rest: 'res ese refugio cotidiano donde las palabras no pesan y el afecto es transparente,' },
-        { initial: 'd', rest: 'escubriendo en cada conversación que la verdadera amistad consiste en coincidir sin forzar nada.' },
+        { initial: 'd', rest: 'escubriendo en cada conversación que lo verdadero yace en coincidir sin forzar nada.' },
       ]
     },
     T: {
@@ -1436,7 +1436,7 @@
     },
     A3: {
       color: '#e8c4b0',
-      attribution: 'escrito por mí',
+      attribution: 'escrito por Emanuel',
       lines: [
         { initial: 'A', rest: 'l final, cuando la jornada termina, la prisa se detiene y el silencio se adueña suavemente de la noche,' },
         { initial: 'e', rest: 'l ruido del mundo por fin se vuelve lejano.' },
@@ -1948,13 +1948,59 @@
     }
   }
 
+  /* ============================================================
+     AUDIO DE LA CARTA SECRETA — fade-in / fade-out suave
+  ============================================================ */
+  const secretAudio   = document.getElementById('secret-audio');
+  const AUDIO_TARGET_VOL = 0.55;   // volumen máximo (0 a 1)
+  const AUDIO_FADE_MS    = 1500;   // duración del fade en ms
+  const AUDIO_FADE_STEP  = 50;     // cada cuánto se actualiza el volumen
+  let audioFadeInterval = null;
+
+  function fadeAudio(target, duration, onComplete) {
+    if (!secretAudio) return;
+    clearInterval(audioFadeInterval);
+
+    const steps = Math.max(1, Math.round(duration / AUDIO_FADE_STEP));
+    const startVol = secretAudio.volume;
+    const diff = target - startVol;
+    let step = 0;
+
+    audioFadeInterval = setInterval(() => {
+      step++;
+      const progress = Math.min(1, step / steps);
+      secretAudio.volume = Math.min(1, Math.max(0, startVol + diff * progress));
+
+      if (progress >= 1) {
+        clearInterval(audioFadeInterval);
+        audioFadeInterval = null;
+        if (onComplete) onComplete();
+      }
+    }, AUDIO_FADE_STEP);
+  }
+
   function openSecret() {
     DOM.secretOverlay.classList.add('active');
     DOM.secretOverlay.focus();
+
+    if (secretAudio) {
+      secretAudio.currentTime = 0;
+      secretAudio.volume = 0;
+      secretAudio.play()
+        .then(() => fadeAudio(AUDIO_TARGET_VOL, AUDIO_FADE_MS))
+        .catch(() => {}); // por si el navegador bloquea el autoplay
+    }
   }
 
   function closeSecret() {
     DOM.secretOverlay.classList.remove('active');
+
+    if (secretAudio) {
+      fadeAudio(0, AUDIO_FADE_MS, () => {
+        secretAudio.pause();
+        secretAudio.currentTime = 0;
+      });
+    }
   }
 
   /* ---- Replay messages ---- */
@@ -2031,7 +2077,7 @@
   }
 
   document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape') { closePoem(); closeSecret(); closeSolarSystem(); }
+    if (event.key === 'Escape') { closePoem(); closeSecret(); }
   });
 
   document.addEventListener('visibilitychange', () => {
@@ -2046,9 +2092,6 @@
     if (e.target === e.currentTarget) closeSecret();
   });
 
-  /* ============================================================
-     CUSTOM CURSOR
-  ============================================================ */
   /* ============================================================
      TIME-OF-DAY THEME
   ============================================================ */
